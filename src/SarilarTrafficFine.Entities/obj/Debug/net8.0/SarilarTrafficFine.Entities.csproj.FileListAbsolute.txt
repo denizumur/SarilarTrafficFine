@@ -1,0 +1,11 @@
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Entities\bin\Debug\net8.0\SarilarTrafficFine.Entities.deps.json
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Entities\bin\Debug\net8.0\SarilarTrafficFine.Entities.dll
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Entities\bin\Debug\net8.0\SarilarTrafficFine.Entities.pdb
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Entities\obj\Debug\net8.0\SarilarTrafficFine.Entities.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Entities\obj\Debug\net8.0\SarilarTrafficFine.Entities.AssemblyInfoInputs.cache
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Entities\obj\Debug\net8.0\SarilarTrafficFine.Entities.AssemblyInfo.cs
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Entities\obj\Debug\net8.0\SarilarTrafficFine.Entities.csproj.CoreCompileInputs.cache
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Entities\obj\Debug\net8.0\SarilarTrafficFine.Entities.dll
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Entities\obj\Debug\net8.0\refint\SarilarTrafficFine.Entities.dll
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Entities\obj\Debug\net8.0\SarilarTrafficFine.Entities.pdb
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Entities\obj\Debug\net8.0\ref\SarilarTrafficFine.Entities.dll

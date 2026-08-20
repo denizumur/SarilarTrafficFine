@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "SarilarTrafficFine.Business/1.0.0": {
+        "dependencies": {
+          "SarilarTrafficFine.Entities": "1.0.0"
+        },
+        "runtime": {
+          "SarilarTrafficFine.Business.dll": {}
+        }
+      },
+      "SarilarTrafficFine.Entities/1.0.0": {
+        "runtime": {
+          "SarilarTrafficFine.Entities.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SarilarTrafficFine.Business/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SarilarTrafficFine.Entities/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

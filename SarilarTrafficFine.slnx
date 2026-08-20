@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SarilarTrafficFine.Business/SarilarTrafficFine.Business.csproj" />
+    <Project Path="src/SarilarTrafficFine.DataAccess/SarilarTrafficFine.DataAccess.csproj" />
+    <Project Path="src/SarilarTrafficFine.Entities/SarilarTrafficFine.Entities.csproj" />
+    <Project Path="src/SarilarTrafficFine.Web/SarilarTrafficFine.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SarilarTrafficFine.UnitTests/SarilarTrafficFine.UnitTests.csproj" />
+  </Folder>
+</Solution>

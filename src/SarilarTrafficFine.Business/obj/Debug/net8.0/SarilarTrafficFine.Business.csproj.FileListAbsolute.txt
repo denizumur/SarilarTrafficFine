@@ -1,0 +1,15 @@
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\bin\Debug\net8.0\SarilarTrafficFine.Business.deps.json
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\bin\Debug\net8.0\SarilarTrafficFine.Business.dll
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\bin\Debug\net8.0\SarilarTrafficFine.Business.pdb
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\bin\Debug\net8.0\SarilarTrafficFine.Entities.dll
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\bin\Debug\net8.0\SarilarTrafficFine.Entities.pdb
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\obj\Debug\net8.0\SarilarTrafficFine.Business.csproj.AssemblyReference.cache
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\obj\Debug\net8.0\SarilarTrafficFine.Business.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\obj\Debug\net8.0\SarilarTrafficFine.Business.AssemblyInfoInputs.cache
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\obj\Debug\net8.0\SarilarTrafficFine.Business.AssemblyInfo.cs
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\obj\Debug\net8.0\SarilarTrafficFine.Business.csproj.CoreCompileInputs.cache
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\obj\Debug\net8.0\SarilarT.1BE499B6.Up2Date
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\obj\Debug\net8.0\SarilarTrafficFine.Business.dll
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\obj\Debug\net8.0\refint\SarilarTrafficFine.Business.dll
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\obj\Debug\net8.0\SarilarTrafficFine.Business.pdb
+C:\Users\deniz\SarilarTrafficFine\src\SarilarTrafficFine.Business\obj\Debug\net8.0\ref\SarilarTrafficFine.Business.dll
