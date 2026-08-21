@@ -1,49 +1,192 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@using SarilarTrafficFine.Business.Constants
+
+@{
+    var isAuthPage =
+        string.Equals(
+            ViewData["LayoutMode"] as string,
+            "Auth",
+            StringComparison.OrdinalIgnoreCase);
+
+    var isAuthenticated =
+        User.Identity?.IsAuthenticated == true;
+
+    var roleName =
+        User.IsInRole(RoleNames.Operator) ? "Operatör" :
+        User.IsInRole(RoleNames.Manager) ? "Yönetici" :
+        User.IsInRole(RoleNames.Finance) ? "Finans" :
+        "Kullanıcı";
+
+    var roleClass =
+        User.IsInRole(RoleNames.Operator) ? "role-operator" :
+        User.IsInRole(RoleNames.Manager) ? "role-manager" :
+        User.IsInRole(RoleNames.Finance) ? "role-finance" :
+        string.Empty;
+
+    var controller =
+        ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<!DOCTYPE html>
+<html lang="tr">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SarilarTrafficFine.Web</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SarilarTrafficFine.Web.styles.css" asp-append-version="true" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @ViewData["Title"] - Sarılar Trafik Ceza Yönetimi
+    </title>
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@600;700&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SarilarTrafficFine.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+    @if (isAuthPage)
+{
+    @RenderBody()
+}
+else if (isAuthenticated)
+{
+    <aside class="app-sidebar">
+        <div class="app-brand">
+            <div class="app-brand-title">
+                Sarılar Group
             </div>
+
+            <span class="app-brand-subtitle">
+                Trafik Ceza Yönetimi
+            </span>
+        </div>
+
+        <nav class="app-nav">
+            <div class="app-nav-label">
+                Yönetim
+            </div>
+
+            <a asp-controller="Vehicles"
+               asp-action="Index"
+               class="app-nav-link @(controller == "Vehicles" ? "active" : "")">
+
+                <i class="bi bi-truck"></i>
+
+                <span class="app-nav-text">
+                    Araçlar
+                </span>
+            </a>
         </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
+
+        <div class="app-sidebar-footer">
+            v1.0 · Internal ERP
+        </div>
+    </aside>
+
+    <button type="button"
+            class="sidebar-overlay"
+            id="sidebarOverlay"
+            aria-label="Menüyü kapat">
+    </button>
+
+    <div class="app-main">
+        <header class="app-topbar">
+            <div class="app-topbar-left">
+                <button type="button"
+                        class="sidebar-toggle"
+                        id="sidebarToggle"
+                        aria-label="Menüyü aç veya kapat">
+
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+
+                <h2 class="app-page-title">
+                    @ViewData["Title"]
+                </h2>
+            </div>
+
+            <div class="app-topbar-right">
+                <span class="role-badge @roleClass">
+                    @roleName
+                </span>
+
+                <span class="user-name">
+                    @User.Identity?.Name
+                </span>
+
+                <form asp-controller="Account"
+                      asp-action="Logout"
+                      method="post"
+                      class="m-0">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="btn btn-sm btn-outline-secondary"
+                            title="Çıkış yap">
+
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <div class="app-content-inner">
+                @RenderBody()
+            </div>
         </main>
     </div>
+}
+else
+{
+    @RenderBody()
+}
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - SarilarTrafficFine.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        (() => {
+            const toggle = document.getElementById("sidebarToggle");
+            const overlay = document.getElementById("sidebarOverlay");
+
+            if (!toggle) {
+                return;
+            }
+
+            toggle.addEventListener("click", () => {
+                if (window.innerWidth < 768) {
+                    document.body.classList.toggle("sidebar-open");
+                    return;
+                }
+
+                document.body.classList.toggle("sidebar-collapsed");
+            });
+
+            overlay?.addEventListener("click", () => {
+                document.body.classList.remove("sidebar-open");
+            });
+        })();
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

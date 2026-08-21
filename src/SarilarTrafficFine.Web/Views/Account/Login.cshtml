@@ -1,0 +1,114 @@
+@using Microsoft.Extensions.Hosting
+@model SarilarTrafficFine.Web.Models.Account.LoginViewModel
+@inject IWebHostEnvironment Environment
+
+@{
+    ViewData["Title"] = "Giriþ";
+    ViewData["LayoutMode"] = "Auth";
+}
+
+<div class="auth-shell">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <div class="auth-brand-mark">
+                <i class="bi bi-shield-check"></i>
+            </div>
+
+            <h1 class="h4 mb-1">
+                Sarýlar Group
+            </h1>
+
+            <div class="text-muted">
+                Trafik Cezasý Yönetim Modülü
+            </div>
+        </div>
+
+        <form asp-action="Login"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input asp-for="ReturnUrl"
+                   type="hidden" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger small mb-3">
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email"
+                       class="form-label">
+                </label>
+
+                <input asp-for="Email"
+                       class="form-control"
+                       autocomplete="username"
+                       autofocus />
+
+                <span asp-validation-for="Email"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password"
+                       class="form-label">
+                </label>
+
+                <input asp-for="Password"
+                       class="form-control"
+                       autocomplete="current-password" />
+
+                <span asp-validation-for="Password"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="form-check mb-4">
+                <input asp-for="RememberMe"
+                       class="form-check-input" />
+
+                <label asp-for="RememberMe"
+                       class="form-check-label">
+                </label>
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary w-100">
+                Giriþ Yap
+            </button>
+        </form>
+
+        @if (Environment.IsDevelopment())
+        {
+        <div class="demo-accounts">
+            <div class="fw-semibold text-dark mb-2">
+                Demo hesaplar
+            </div>
+
+            <div class="mono">
+                operator@demo.local
+            </div>
+
+            <div class="mono">
+                manager@demo.local
+            </div>
+
+            <div class="mono">
+                finance@demo.local
+            </div>
+
+            <div class="mt-2">
+                Parola:
+                <span class="mono">
+                    Demo123!
+                </span>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
