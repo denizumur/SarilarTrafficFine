@@ -2,8 +2,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SarilarTrafficFine.Business.Abstractions.Persistence;
 using SarilarTrafficFine.DataAccess.Context;
 using SarilarTrafficFine.DataAccess.Identity;
+using SarilarTrafficFine.DataAccess.Repositories;
+using SarilarTrafficFine.DataAccess.UnitOfWork;
 
 namespace SarilarTrafficFine.DataAccess;
 
@@ -25,6 +28,18 @@ public static class DependencyInjection
             .AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
+
+        services.AddScoped(
+            typeof(IGenericRepository<>),
+            typeof(GenericRepository<>));
+
+        services.AddScoped<
+            IApprovalWorkflowRepository,
+            ApprovalWorkflowRepository>();
+
+        services.AddScoped<
+            IUnitOfWork,
+            EfUnitOfWork>();
 
         return services;
     }

@@ -1,15 +1,18 @@
 using SarilarTrafficFine.DataAccess;
+using SarilarTrafficFine.DataAccess.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Servisler tek bir sefer eklendi
 builder.Services.AddControllersWithViews();
 builder.Services.AddDataAccess(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    await app.Services.SeedDevelopmentDataAsync();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
