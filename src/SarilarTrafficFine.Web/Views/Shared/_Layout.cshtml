@@ -28,6 +28,16 @@
     var action =
         ViewContext.RouteData.Values["action"]?.ToString();
 
+    var isHome =
+        string.Equals(
+            controller,
+            "Home",
+            StringComparison.OrdinalIgnoreCase)
+        && string.Equals(
+            action,
+            "Index",
+            StringComparison.OrdinalIgnoreCase);
+
     var isPendingApprovals =
         string.Equals(
             controller,
@@ -98,6 +108,17 @@ else if (isAuthenticated)
             <div class="app-nav-label">
                 Yönetim
             </div>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="app-nav-link @(isHome ? "active" : "")">
+
+                <i class="bi bi-grid"></i>
+
+                <span class="app-nav-text">
+                    Ana Sayfa
+                </span>
+            </a>
 
             <a asp-controller="Vehicles"
                asp-action="Index"
@@ -236,6 +257,8 @@ else
         })();
     </script>
 
-    @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync(
+    "Scripts",
+    required: false)
 </body>
 </html>

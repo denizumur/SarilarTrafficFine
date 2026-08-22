@@ -24,7 +24,7 @@ public sealed class AccountController : Controller
         {
             return RedirectToAction(
                 "Index",
-                "Vehicles");
+                "Home");
         }
 
         return View(new LoginViewModel
@@ -46,11 +46,12 @@ public sealed class AccountController : Controller
 
         var email = model.Email.Trim();
 
-        var result = await _signInManager.PasswordSignInAsync(
-            email,
-            model.Password,
-            model.RememberMe,
-            lockoutOnFailure: false);
+        var result =
+            await _signInManager.PasswordSignInAsync(
+                email,
+                model.Password,
+                model.RememberMe,
+                lockoutOnFailure: false);
 
         if (result.Succeeded)
         {
@@ -62,7 +63,7 @@ public sealed class AccountController : Controller
 
             return RedirectToAction(
                 "Index",
-                "Vehicles");
+                "Home");
         }
 
         ModelState.AddModelError(

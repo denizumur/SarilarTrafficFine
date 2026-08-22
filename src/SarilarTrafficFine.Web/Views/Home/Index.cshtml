@@ -1,8 +1,165 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using SarilarTrafficFine.Business.Constants
+
+@{
+    ViewData["Title"] = "Ana Sayfa";
+
+    var canCreateTrafficFine =
+        User.IsInRole(RoleNames.Operator);
+
+    var canViewPendingApprovals =
+        User.IsInRole(RoleNames.Manager)
+        || User.IsInRole(RoleNames.Finance);
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<section class="mb-4">
+    <div class="d-flex flex-column gap-2">
+        <div>
+            <span class="badge text-bg-light border">
+                Sarılar Group
+            </span>
+        </div>
+
+        <div>
+            <h1 class="h3 mb-2">
+                Trafik Cezası Yönetim Modülü
+            </h1>
+
+            <p class="text-muted mb-0">
+                Araç, trafik cezası ve onay süreçlerine
+                hızlıca erişebilirsiniz.
+            </p>
+        </div>
+    </div>
+</section>
+
+<div class="row g-3">
+    <div class="col-12 col-md-6">
+        <a asp-controller="Vehicles"
+           asp-action="Index"
+           class="card h-100 border-0 shadow-sm text-decoration-none text-body">
+
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="fs-2 text-primary">
+                        <i class="bi bi-truck"></i>
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <h2 class="h5 mb-2">
+                            Araçlar
+                        </h2>
+
+                        <p class="text-muted mb-3">
+                            Sistemde tanımlı araçları görüntüleyin
+                            ve araç kayıtlarına erişin.
+                        </p>
+
+                        <span class="fw-semibold text-primary">
+                            Araçlara git
+                            <i class="bi bi-arrow-right ms-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <a asp-controller="TrafficFines"
+           asp-action="Index"
+           class="card h-100 border-0 shadow-sm text-decoration-none text-body">
+
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="fs-2 text-primary">
+                        <i class="bi bi-receipt-cutoff"></i>
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <h2 class="h5 mb-2">
+                            Trafik Cezaları
+                        </h2>
+
+                        <p class="text-muted mb-3">
+                            Trafik cezası kayıtlarını, durumlarını
+                            ve onay süreçlerini görüntüleyin.
+                        </p>
+
+                        <span class="fw-semibold text-primary">
+                            Cezalara git
+                            <i class="bi bi-arrow-right ms-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    @if (canCreateTrafficFine)
+    {
+    <div class="col-12 col-md-6">
+        <a asp-controller="TrafficFines"
+           asp-action="Create"
+           class="card h-100 border-0 shadow-sm text-decoration-none text-body">
+
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="fs-2 text-success">
+                        <i class="bi bi-plus-circle"></i>
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <h2 class="h5 mb-2">
+                            Yeni Trafik Cezası
+                        </h2>
+
+                        <p class="text-muted mb-3">
+                            Bir araç için yeni trafik cezası
+                            kaydı oluşturun.
+                        </p>
+
+                        <span class="fw-semibold text-success">
+                            Yeni kayıt oluştur
+                            <i class="bi bi-arrow-right ms-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    }
+
+    @if (canViewPendingApprovals)
+    {
+    <div class="col-12 col-md-6">
+        <a asp-controller="TrafficFines"
+           asp-action="PendingApprovals"
+           class="card h-100 border-0 shadow-sm text-decoration-none text-body">
+
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="fs-2 text-warning">
+                        <i class="bi bi-inbox"></i>
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <h2 class="h5 mb-2">
+                            Bekleyen Onaylar
+                        </h2>
+
+                        <p class="text-muted mb-3">
+                            Rolünüzün mevcut onay adımında
+                            bekleyen kayıtları inceleyin.
+                        </p>
+
+                        <span class="fw-semibold text-warning-emphasis">
+                            Onay kutusuna git
+                            <i class="bi bi-arrow-right ms-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    }
 </div>
