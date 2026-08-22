@@ -638,6 +638,17 @@ public sealed class TrafficFineService : ITrafficFineService
                     "Bu onay aþamasý için yetkiniz bulunmuyor."));
         }
 
+        if (string.Equals(
+                trafficFine.CreatedByUserId,
+                currentUser.UserId,
+                StringComparison.Ordinal))
+        {
+            return ApprovalPreparation.Failed(
+                Failure(
+                    TrafficFineCommandError.Forbidden,
+                    "Kendi oluþturduðunuz kaydý onaylayamaz veya reddedemezsiniz."));
+        }
+
         return ApprovalPreparation.Success(
             trafficFine,
             workflow,

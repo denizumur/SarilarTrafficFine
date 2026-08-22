@@ -24,6 +24,8 @@ public sealed record TrafficFineDetailsViewModel(
 
     public bool CanApproveOrReject { get; init; }
 
+    public bool IsCreatedByCurrentUser { get; init; }
+
     public string? CurrentStepRequiredRole { get; init; }
 
     public string? CurrentStepRequiredRoleText { get; init; }

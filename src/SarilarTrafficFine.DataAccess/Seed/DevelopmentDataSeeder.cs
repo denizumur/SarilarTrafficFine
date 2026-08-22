@@ -29,17 +29,28 @@ public static class DevelopmentDataSeeder
         }
 
         var roleManager =
-            scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            scope.ServiceProvider
+                .GetRequiredService<RoleManager<IdentityRole>>();
 
         var userManager =
-            scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            scope.ServiceProvider
+                .GetRequiredService<UserManager<ApplicationUser>>();
 
         var dbContext =
-            scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            scope.ServiceProvider
+                .GetRequiredService<AppDbContext>();
 
-        await EnsureRoleAsync(roleManager, RoleNames.Operator);
-        await EnsureRoleAsync(roleManager, RoleNames.Manager);
-        await EnsureRoleAsync(roleManager, RoleNames.Finance);
+        await EnsureRoleAsync(
+            roleManager,
+            RoleNames.Operator);
+
+        await EnsureRoleAsync(
+            roleManager,
+            RoleNames.Manager);
+
+        await EnsureRoleAsync(
+            roleManager,
+            RoleNames.Finance);
 
         await EnsureUserAsync(
             userManager,
@@ -59,20 +70,30 @@ public static class DevelopmentDataSeeder
             demoPassword,
             RoleNames.Finance);
 
-        await EnsureTrafficFineWorkflowAsync(dbContext);
+        await EnsureUserAsync(
+            userManager,
+            "manager.operator@demo.local",
+            demoPassword,
+            RoleNames.Operator,
+            RoleNames.Manager);
+
+        await EnsureTrafficFineWorkflowAsync(
+            dbContext);
     }
 
     private static async Task EnsureRoleAsync(
         RoleManager<IdentityRole> roleManager,
         string roleName)
     {
-        if (await roleManager.RoleExistsAsync(roleName))
+        if (await roleManager.RoleExistsAsync(
+                roleName))
         {
             return;
         }
 
-        var result = await roleManager.CreateAsync(
-            new IdentityRole(roleName));
+        var result =
+            await roleManager.CreateAsync(
+                new IdentityRole(roleName));
 
         EnsureSucceeded(
             result,
@@ -83,31 +104,47 @@ public static class DevelopmentDataSeeder
         UserManager<ApplicationUser> userManager,
         string email,
         string password,
-        string roleName)
+        params string[] roleNames)
     {
-        var user = await userManager.FindByEmailAsync(email);
+        var user =
+            await userManager.FindByEmailAsync(
+                email);
 
         if (user is null)
         {
-            user = new ApplicationUser
-            {
-                UserName = email,
-                Email = email,
-                EmailConfirmed = true
-            };
+            user =
+                new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    EmailConfirmed = true
+                };
 
             var createResult =
-                await userManager.CreateAsync(user, password);
+                await userManager.CreateAsync(
+                    user,
+                    password);
 
             EnsureSucceeded(
                 createResult,
                 $"'{email}' demo kullanýcýsý oluþturulamadý.");
         }
 
-        if (!await userManager.IsInRoleAsync(user, roleName))
+        foreach (var roleName in
+                 roleNames.Distinct(
+                     StringComparer.Ordinal))
         {
+            if (await userManager.IsInRoleAsync(
+                    user,
+                    roleName))
+            {
+                continue;
+            }
+
             var roleResult =
-                await userManager.AddToRoleAsync(user, roleName);
+                await userManager.AddToRoleAsync(
+                    user,
+                    roleName);
 
             EnsureSucceeded(
                 roleResult,
@@ -115,41 +152,59 @@ public static class DevelopmentDataSeeder
         }
     }
 
-    private static async Task EnsureTrafficFineWorkflowAsync(
-        AppDbContext dbContext)
+    private static async Task
+        EnsureTrafficFineWorkflowAsync(
+            AppDbContext dbContext)
     {
-        var exists = await dbContext.ApprovalWorkflows
-            .AnyAsync(x => x.Code == WorkflowCodes.TrafficFine);
+        var exists =
+            await dbContext.ApprovalWorkflows
+                .AnyAsync(
+                    x =>
+                        x.Code ==
+                        WorkflowCodes.TrafficFine);
 
         if (exists)
         {
             return;
         }
 
-        var workflow = new ApprovalWorkflow
-        {
-            Code = WorkflowCodes.TrafficFine,
-            Name = "Trafik Cezasý Onay Akýþý",
-            IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow,
-            Steps =
-            [
-                new ApprovalWorkflowStep
-                {
-                    StepOrder = 1,
-                    Name = "Yönetici Onayý",
-                    RequiredRole = RoleNames.Manager
-                },
-                new ApprovalWorkflowStep
-                {
-                    StepOrder = 2,
-                    Name = "Finans Onayý",
-                    RequiredRole = RoleNames.Finance
-                }
-            ]
-        };
+        var workflow =
+            new ApprovalWorkflow
+            {
+                Code =
+                    WorkflowCodes.TrafficFine,
 
-        dbContext.ApprovalWorkflows.Add(workflow);
+                Name =
+                    "Trafik Cezasý Onay Akýþý",
+
+                IsActive =
+                    true,
+
+                CreatedAt =
+                    DateTimeOffset.UtcNow,
+
+                Steps =
+                [
+                    new ApprovalWorkflowStep
+                    {
+                        StepOrder = 1,
+                        Name = "Yönetici Onayý",
+                        RequiredRole =
+                            RoleNames.Manager
+                    },
+
+                    new ApprovalWorkflowStep
+                    {
+                        StepOrder = 2,
+                        Name = "Finans Onayý",
+                        RequiredRole =
+                            RoleNames.Finance
+                    }
+                ]
+            };
+
+        dbContext.ApprovalWorkflows.Add(
+            workflow);
 
         await dbContext.SaveChangesAsync();
     }
@@ -163,9 +218,11 @@ public static class DevelopmentDataSeeder
             return;
         }
 
-        var errors = string.Join(
-            "; ",
-            result.Errors.Select(x => x.Description));
+        var errors =
+            string.Join(
+                "; ",
+                result.Errors.Select(
+                    x => x.Description));
 
         throw new InvalidOperationException(
             $"{message} {errors}");

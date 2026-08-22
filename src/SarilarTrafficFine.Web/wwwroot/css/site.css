@@ -35,8 +35,14 @@ html {
 
 body {
     margin: 0;
+    min-height: 100vh;
     color: var(--sr-text);
-    background: var(--sr-bg);
+    background-color: var(--sr-bg);
+    background-image: linear-gradient( rgba(245, 246, 248, .78), rgba(245, 246, 248, .78) ), url("../images/arkaplan.png");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -98,23 +104,45 @@ a {
 }
 
 .app-brand {
+    display: flex;
+    align-items: center;
     min-height: 72px;
-    padding: 16px 20px;
+    padding: 12px 20px;
     border-bottom: 1px solid rgba(255, 255, 255, .08);
 }
 
-.app-brand-title {
-    margin: 0;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
+.app-brand-logo-link {
+    display: block;
+    width: 100%;
+    height: 44px;
+    overflow: hidden;
+    border-radius: var(--sr-radius-sm);
+    background: #F4F4F4;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .12);
 }
 
-.app-brand-subtitle {
+.app-brand-logo {
     display: block;
-    margin-top: 2px;
-    color: #9EABC0;
-    font-size: 11px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.app-brand-compact {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 10px;
+    color: #fff;
+    font-family: "Sora", system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    background: var(--sr-ink-light);
 }
 
 .app-nav {
@@ -419,7 +447,7 @@ a {
     min-height: 100vh;
     place-items: center;
     padding: 24px;
-    background: var(--sr-ink);
+    background: transparent;
 }
 
 .auth-card {
@@ -472,11 +500,18 @@ body.sidebar-collapsed .app-main {
 }
 
 body.sidebar-collapsed .app-brand {
+    justify-content: center;
     padding-inline: 12px;
 }
 
-body.sidebar-collapsed .app-brand-title,
-body.sidebar-collapsed .app-brand-subtitle,
+body.sidebar-collapsed .app-brand-logo-link {
+    display: none;
+}
+
+body.sidebar-collapsed .app-brand-compact {
+    display: inline-flex;
+}
+
 body.sidebar-collapsed .app-nav-label,
 body.sidebar-collapsed .app-nav-text,
 body.sidebar-collapsed .app-sidebar-footer {
@@ -499,11 +534,18 @@ body.sidebar-collapsed .app-nav-link {
     }
 
     .app-brand {
+        justify-content: center;
         padding-inline: 12px;
     }
 
-    .app-brand-title,
-    .app-brand-subtitle,
+    .app-brand-logo-link {
+        display: none;
+    }
+
+    .app-brand-compact {
+        display: inline-flex;
+    }
+
     .app-nav-label,
     .app-nav-text,
     .app-sidebar-footer {
@@ -518,6 +560,11 @@ body.sidebar-collapsed .app-nav-link {
 /* Mobile */
 
 @media (max-width: 767.98px) {
+    body {
+        background-position: center top;
+        background-attachment: scroll;
+    }
+
     .app-sidebar {
         width: 240px;
         transform: translateX(-100%);

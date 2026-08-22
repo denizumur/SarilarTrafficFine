@@ -95,13 +95,22 @@ else if (isAuthenticated)
 {
     <aside class="app-sidebar">
         <div class="app-brand">
-            <div class="app-brand-title">
-                Sarılar Group
-            </div>
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="app-brand-logo-link"
+               aria-label="Sarılar Group ana sayfa">
 
-            <span class="app-brand-subtitle">
-                Trafik Ceza Yönetimi
-            </span>
+                <img src="~/images/logo.jpg"
+                     alt="Sarılar Group"
+                     class="app-brand-logo" />
+            </a>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="app-brand-compact text-decoration-none"
+               aria-label="Sarılar Group ana sayfa">
+                SG
+            </a>
         </div>
 
         <nav class="app-nav">

@@ -105,6 +105,131 @@ public sealed class TrafficFineServiceApprovalTests
     }
 
     [Fact]
+    public async Task ApproveAsync_CreatorWithMatchingRole_ReturnsForbidden()
+    {
+        var workflow =
+            CreateThreeStepWorkflow();
+
+        var trafficFine =
+            CreateTrafficFine(
+                status:
+                    TrafficFineStatus.InApproval,
+                workflowId:
+                    workflow.Id,
+                currentStepId:
+                    10);
+
+        var fixture =
+            CreateFixture(
+                trafficFine,
+                workflow);
+
+        var creatorManagerUser =
+            new CurrentUserContext(
+                "operator-user-id",
+                "operator@demo.local",
+                new[]
+                {
+                    RoleNames.Operator,
+                    RoleNames.Manager
+                });
+
+        var result =
+            await fixture.Service.ApproveAsync(
+                trafficFine.Id,
+                creatorManagerUser);
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            TrafficFineCommandError.Forbidden,
+            result.Error);
+
+        Assert.Equal(
+            "Kendi oluþturduðunuz kaydý onaylayamaz veya reddedemezsiniz.",
+            result.ErrorMessage);
+
+        Assert.Equal(
+            TrafficFineStatus.InApproval,
+            trafficFine.Status);
+
+        Assert.Equal(
+            10,
+            trafficFine.CurrentApprovalStepId);
+
+        Assert.Empty(
+            fixture.HistoryRepository.Items);
+
+        Assert.Equal(
+            0,
+            fixture.UnitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
+    public async Task RejectAsync_CreatorWithMatchingRole_ReturnsForbidden()
+    {
+        var workflow =
+            CreateThreeStepWorkflow();
+
+        var trafficFine =
+            CreateTrafficFine(
+                status:
+                    TrafficFineStatus.InApproval,
+                workflowId:
+                    workflow.Id,
+                currentStepId:
+                    10);
+
+        var fixture =
+            CreateFixture(
+                trafficFine,
+                workflow);
+
+        var creatorManagerUser =
+            new CurrentUserContext(
+                "operator-user-id",
+                "operator@demo.local",
+                new[]
+                {
+                    RoleNames.Operator,
+                    RoleNames.Manager
+                });
+
+        var result =
+            await fixture.Service.RejectAsync(
+                trafficFine.Id,
+                "Self reject engellenmeli.",
+                creatorManagerUser);
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            TrafficFineCommandError.Forbidden,
+            result.Error);
+
+        Assert.Equal(
+            "Kendi oluþturduðunuz kaydý onaylayamaz veya reddedemezsiniz.",
+            result.ErrorMessage);
+
+        Assert.Equal(
+            TrafficFineStatus.InApproval,
+            trafficFine.Status);
+
+        Assert.Equal(
+            10,
+            trafficFine.CurrentApprovalStepId);
+
+        Assert.Empty(
+            fixture.HistoryRepository.Items);
+
+        Assert.Equal(
+            0,
+            fixture.UnitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
     public async Task ApproveAsync_CurrentStepApproved_MovesToNextDatabaseDefinedStep()
     {
         var workflow = CreateThreeStepWorkflow();

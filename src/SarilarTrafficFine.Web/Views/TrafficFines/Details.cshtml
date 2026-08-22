@@ -310,8 +310,20 @@
                     @Model.CurrentStepRequiredRoleText
                 </span>
 
-                @if (Model.CanApproveOrReject)
-                    {
+                @if (Model.IsCreatedByCurrentUser)
+                {
+                <div class="workflow-readonly-note mt-3">
+                    <i class="bi bi-shield-lock"></i>
+
+                    <span>
+                        Bu kaydı siz oluşturdunuz.
+                        Onay veya ret işlemini başka bir
+                        yetkili kullanıcı gerçekleştirmelidir.
+                    </span>
+                </div>
+                }
+                else if (Model.CanApproveOrReject)
+                {
                 <div class="d-grid gap-2 mt-3">
                     <form asp-action="Approve"
                           asp-route-id="@Model.Id"
@@ -336,9 +348,9 @@
                         Reddet
                     </button>
                 </div>
-                    }
-                    else
-                    {
+                }
+                else
+                {
                 <div class="workflow-readonly-note mt-3">
                     <i class="bi bi-lock"></i>
 
@@ -350,7 +362,7 @@
                         rolündeki kullanıcı tarafından yapılabilir.
                     </span>
                 </div>
-                    }
+                }
             </div>
             }
             else if (Model.Status ==

@@ -101,13 +101,22 @@ public sealed class TrafficFinesController : Controller
                 trafficFine.Status,
                 approval.CurrentStepName);
 
+        var isCreatedByCurrentUser =
+    !string.IsNullOrWhiteSpace(
+        User.Identity?.Name)
+    && string.Equals(
+        trafficFine.CreatedByUserName,
+        User.Identity.Name,
+        StringComparison.OrdinalIgnoreCase);
+
         var canApproveOrReject =
             trafficFine.Status ==
                 TrafficFineStatus.InApproval
             && !string.IsNullOrWhiteSpace(
                 approval.CurrentStepRequiredRole)
             && User.IsInRole(
-                approval.CurrentStepRequiredRole);
+                approval.CurrentStepRequiredRole)
+            && !isCreatedByCurrentUser;
 
         var model =
             new TrafficFineDetailsViewModel(
@@ -140,6 +149,8 @@ public sealed class TrafficFinesController : Controller
 
                 CanApproveOrReject =
                     canApproveOrReject,
+                IsCreatedByCurrentUser =
+                isCreatedByCurrentUser,
 
                 CurrentStepRequiredRole =
                     approval.CurrentStepRequiredRole,
