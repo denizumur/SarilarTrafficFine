@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuestPDF.Fluent;
 using SarilarTrafficFine.Business.Constants;
 using SarilarTrafficFine.Business.Features.TrafficFines;
 using SarilarTrafficFine.Business.Features.TrafficFines.Models;
 using SarilarTrafficFine.Business.Features.Vehicles;
 using SarilarTrafficFine.Entities.Enums;
+using SarilarTrafficFine.Web.Documents;
 using SarilarTrafficFine.Web.Models.TrafficFines;
 using SarilarTrafficFine.Web.Security;
 
@@ -149,8 +151,9 @@ public sealed class TrafficFinesController : Controller
 
                 CanApproveOrReject =
                     canApproveOrReject,
+
                 IsCreatedByCurrentUser =
-                isCreatedByCurrentUser,
+                    isCreatedByCurrentUser,
 
                 CurrentStepRequiredRole =
                     approval.CurrentStepRequiredRole,
@@ -172,6 +175,45 @@ public sealed class TrafficFinesController : Controller
             };
 
         return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportPdf(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var trafficFine =
+            await _trafficFineService.GetDetailsAsync(
+                id,
+                cancellationToken);
+
+        if (trafficFine is null)
+        {
+            return NotFound();
+        }
+
+        var approval =
+            await _approvalQueryService.GetAsync(
+                id,
+                cancellationToken);
+
+        if (approval is null)
+        {
+            return NotFound();
+        }
+
+        var document =
+            new TrafficFinePdfDocument(
+                trafficFine,
+                approval);
+
+        var pdfBytes =
+            document.GeneratePdf();
+
+        return File(
+            pdfBytes,
+            "application/pdf",
+            $"trafik-cezasi-{id}.pdf");
     }
 
     [Authorize(Roles = RoleNames.Operator)]

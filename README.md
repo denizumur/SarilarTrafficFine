@@ -772,5 +772,25 @@ temiz katman sınırları
 +
 tekrar üretilebilir local kurulum
 ```
-
 olarak belirlenmiştir.
+
+## PDF Çıktısı ve QuestPDF Lisans Notu
+
+Trafik cezası detay ekranından kayıtların PDF çıktısı alınabilir.
+
+PDF çıktısında aşağıdaki bilgiler yer alır:
+
+- Trafik cezası ve araç bilgileri
+- Güncel kayıt durumu
+- Dinamik onay akışı
+- Onay geçmişi
+- İşlemi yapan kullanıcılar
+- Ret nedeni / açıklamalar
+
+PDF üretimi Web katmanında `QuestPDF 2026.7.3` kullanılarak gerçekleştirilmiştir.
+Business, DataAccess ve Entity katmanları PDF kütüphanesine bağımlı değildir.
+
+Bu case çalışmasında QuestPDF aşağıdaki şekilde yapılandırılmıştır:
+
+```csharp
+QuestPDF.Settings.License = LicenseType.Community;
