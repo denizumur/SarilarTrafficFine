@@ -8,6 +8,10 @@ public interface ITrafficFineRepository
     Task<IReadOnlyList<TrafficFineListRecord>> ListAsync(
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<TrafficFineListRecord>> GetPendingForRolesAsync(
+        IEnumerable<string> roles,
+        CancellationToken cancellationToken = default);
+
     Task<TrafficFineDetailsRecord?> GetDetailsAsync(
         int id,
         CancellationToken cancellationToken = default);

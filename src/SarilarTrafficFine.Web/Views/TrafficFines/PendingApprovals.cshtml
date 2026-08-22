@@ -1,0 +1,261 @@
+﻿@using System.Globalization
+@model IReadOnlyList<SarilarTrafficFine.Web.Models.TrafficFines.TrafficFineListItemViewModel>
+
+    @{
+    ViewData["Title"] = "Bekleyen Onaylar";
+
+    var trCulture =
+        CultureInfo.GetCultureInfo("tr-TR");
+
+    var pendingCount =
+        Model.Count;
+
+    var summaryText =
+        pendingCount == 1
+            ? "1 kayıt sizin işleminizi bekliyor."
+            : $"{pendingCount} kayıt sizin işleminizi bekliyor.";
+    }
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                Bekleyen Onaylar
+            </h1>
+
+            <p class="page-description">
+                Mevcut onay aşaması rolünüzle eşleşen trafik cezalarını inceleyin.
+            </p>
+        </div>
+    </div>
+
+    <div class="app-surface approval-inbox-surface">
+        <div class="approval-inbox-summary">
+            <div class="approval-inbox-summary-copy">
+                <span class="approval-inbox-summary-icon"
+                      aria-hidden="true">
+                    <i class="bi bi-inbox"></i>
+                </span>
+
+                <div>
+                    <div class="approval-inbox-summary-title">
+                        Onay görev kutusu
+                    </div>
+
+                    <div class="approval-inbox-summary-text">
+                        @summaryText
+                    </div>
+                </div>
+            </div>
+
+            @if (pendingCount > 0)
+        {
+            <span class="approval-inbox-count">
+                @pendingCount bekleyen
+            </span>
+        }
+        </div>
+
+        @if (pendingCount == 0)
+    {
+        <div class="empty-state approval-inbox-empty">
+            <div class="empty-state-icon approval-inbox-empty-icon"
+                 aria-hidden="true">
+                <i class="bi bi-check2"></i>
+            </div>
+
+            <h2 class="h5 mb-2">
+                Bekleyen onayınız yok
+            </h2>
+
+            <p class="text-secondary mb-0">
+                Şu anda onayınızı bekleyen bir kayıt bulunmuyor.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive d-none d-md-block">
+            <table class="table align-middle fine-table approval-inbox-table mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">
+                            Plaka / Araç
+                        </th>
+
+                        <th scope="col">
+                            Ceza Tarihi
+                        </th>
+
+                        <th scope="col">
+                            Tutar
+                        </th>
+
+                        <th scope="col">
+                            Mevcut Aşama
+                        </th>
+
+                        <th scope="col">
+                            Oluşturan
+                        </th>
+
+                        <th scope="col"
+                            class="text-end">
+                            İşlem
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>
+                            <div class="vehicle-plate">
+                                @item.PlateNumber
+                            </div>
+
+                            <div class="approval-inbox-vehicle">
+                                @item.VehicleName
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="fine-date">
+                                @(item.FineDate.ToString(
+                                        "dd MMM yyyy",
+                                        trCulture))
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="fine-money">
+                                ₺@(item.Amount.ToString(
+                                        "N2",
+                                        trCulture))
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="approval-inbox-stage">
+                                <i class="bi bi-hourglass-split"
+                                   aria-hidden="true"></i>
+
+                                <span>
+                                    @(item.CurrentStepName
+                                            ?? "Onay aşaması")
+                                </span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="approval-inbox-created-by"
+                                  title="@item.CreatedByUserName">
+                                @item.CreatedByUserName
+                            </span>
+                        </td>
+
+                        <td class="text-end">
+                            <a asp-controller="TrafficFines"
+                               asp-action="Details"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-primary approval-review-link">
+
+                                İncele
+
+                                <i class="bi bi-arrow-right ms-1"
+                                   aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="approval-inbox-mobile-list d-md-none">
+            @foreach (var item in Model)
+            {
+            <article class="approval-inbox-mobile-card">
+                <div class="approval-inbox-mobile-head">
+                    <div>
+                        <div class="vehicle-plate">
+                            @item.PlateNumber
+                        </div>
+
+                        <div class="approval-inbox-vehicle">
+                            @item.VehicleName
+                        </div>
+                    </div>
+
+                    <span class="sr-status-badge @item.StatusCssClass">
+                        Onayda
+                    </span>
+                </div>
+
+                <div class="approval-inbox-mobile-grid">
+                    <div>
+                        <span class="approval-inbox-mobile-label">
+                            Ceza Tarihi
+                        </span>
+
+                        <strong class="fine-date">
+                            @(item.FineDate.ToString(
+                                    "dd MMM yyyy",
+                                    trCulture))
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span class="approval-inbox-mobile-label">
+                            Tutar
+                        </span>
+
+                        <strong class="fine-money">
+                            ₺@(item.Amount.ToString(
+                                    "N2",
+                                    trCulture))
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="approval-inbox-stage approval-inbox-mobile-stage">
+                    <i class="bi bi-hourglass-split"
+                       aria-hidden="true"></i>
+
+                    <div>
+                        <span class="approval-inbox-mobile-label">
+                            Sizin aşamanız
+                        </span>
+
+                        <strong>
+                            @(item.CurrentStepName
+                                    ?? "Onay aşaması")
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="approval-inbox-mobile-footer">
+                    <span class="approval-inbox-created-by"
+                          title="@item.CreatedByUserName">
+                        <i class="bi bi-person me-1"
+                           aria-hidden="true"></i>
+
+                        @item.CreatedByUserName
+                    </span>
+
+                    <a asp-controller="TrafficFines"
+                       asp-action="Details"
+                       asp-route-id="@item.Id"
+                       class="btn btn-sm btn-outline-primary">
+
+                        İncele
+
+                        <i class="bi bi-arrow-right ms-1"
+                           aria-hidden="true"></i>
+                    </a>
+                </div>
+            </article>
+            }
+        </div>
+    }
+    </div>

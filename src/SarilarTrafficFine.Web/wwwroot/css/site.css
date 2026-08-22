@@ -421,6 +421,7 @@ a {
     padding: 24px;
     background: var(--sr-ink);
 }
+
 .auth-card {
     width: 100%;
     max-width: 380px;
@@ -577,6 +578,7 @@ body.sidebar-collapsed .app-nav-link {
         display: none;
     }
 }
+
 /* =========================================================
    Traffic Fine
    ========================================================= */
@@ -915,6 +917,7 @@ body.sidebar-collapsed .app-nav-link {
         padding-right: 0;
     }
 }
+
 /* =========================================================
    Approval Workflow
    ========================================================= */
@@ -1155,4 +1158,233 @@ body.sidebar-collapsed .app-nav-link {
         .approval-history-header time {
             white-space: normal;
         }
+}
+
+/* =========================================================
+   Pending Approvals
+   ========================================================= */
+
+.approval-inbox-surface {
+    overflow: hidden;
+}
+
+.approval-inbox-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--sr-border);
+    background: #FAFBFC;
+}
+
+.approval-inbox-summary-copy {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.approval-inbox-summary-icon {
+    display: inline-flex;
+    flex: 0 0 40px;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    color: var(--sr-status-pending);
+    background: var(--sr-status-pending-bg);
+    font-size: 18px;
+}
+
+.approval-inbox-summary-title {
+    margin-bottom: 2px;
+    color: var(--sr-ink);
+    font-family: "Sora", system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.approval-inbox-summary-text {
+    color: var(--sr-text-muted);
+    font-size: 12px;
+}
+
+.approval-inbox-count {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    border: 1px solid #E8D0A6;
+    border-radius: 999px;
+    color: var(--sr-status-pending);
+    background: var(--sr-status-pending-bg);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.approval-inbox-table tbody tr {
+    transition: background-color .15s ease;
+}
+
+    .approval-inbox-table tbody tr:hover {
+        background: #FAFBFC;
+    }
+
+.approval-inbox-vehicle {
+    margin-top: 3px;
+    color: var(--sr-text-muted);
+    font-size: 12px;
+}
+
+.approval-inbox-stage {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--sr-status-pending);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+    .approval-inbox-stage i {
+        flex: 0 0 auto;
+    }
+
+.approval-inbox-created-by {
+    display: inline-block;
+    max-width: 220px;
+    overflow: hidden;
+    color: var(--sr-text-muted);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.approval-review-link {
+    white-space: nowrap;
+}
+
+.approval-review-link,
+.approval-inbox-mobile-footer .btn {
+    --bs-btn-color: var(--sr-ink);
+    --bs-btn-border-color: #CBD2DC;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--sr-ink);
+    --bs-btn-hover-border-color: var(--sr-ink);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--sr-ink-light);
+    --bs-btn-active-border-color: var(--sr-ink-light);
+}
+
+.approval-inbox-empty {
+    min-height: 280px;
+}
+
+.approval-inbox-empty-icon {
+    color: var(--sr-status-success);
+    background: var(--sr-status-success-bg);
+}
+
+.approval-inbox-mobile-list {
+    padding: 12px;
+}
+
+.approval-inbox-mobile-card {
+    margin-bottom: 12px;
+    padding: 16px;
+    border: 1px solid var(--sr-border);
+    border-radius: var(--sr-radius);
+    background: var(--sr-surface);
+    box-shadow: var(--sr-shadow-sm);
+}
+
+    .approval-inbox-mobile-card:last-child {
+        margin-bottom: 0;
+    }
+
+.approval-inbox-mobile-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.approval-inbox-mobile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+    padding: 14px 0;
+    border-top: 1px solid var(--sr-border);
+    border-bottom: 1px solid var(--sr-border);
+}
+
+    .approval-inbox-mobile-grid > div {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+.approval-inbox-mobile-label {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--sr-text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+}
+
+.approval-inbox-mobile-stage {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: var(--sr-radius-sm);
+    background: var(--sr-status-pending-bg);
+}
+
+    .approval-inbox-mobile-stage strong {
+        display: block;
+        color: var(--sr-status-pending);
+    }
+
+.approval-inbox-mobile-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+@media (max-width: 575.98px) {
+    .approval-inbox-summary {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .approval-inbox-count {
+        margin-left: 52px;
+    }
+
+    .approval-inbox-mobile-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .approval-inbox-mobile-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .approval-inbox-created-by {
+        max-width: 100%;
+    }
+
+    .approval-inbox-mobile-footer .btn {
+        width: 100%;
+    }
 }

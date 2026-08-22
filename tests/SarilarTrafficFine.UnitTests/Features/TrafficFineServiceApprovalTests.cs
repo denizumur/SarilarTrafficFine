@@ -444,6 +444,108 @@ public sealed class TrafficFineServiceApprovalTests
             history.WorkflowStepName);
     }
 
+    [Fact]
+    public async Task CreateAsync_FutureFineDate_ReturnsValidationError()
+    {
+        var workflow =
+            CreateThreeStepWorkflow();
+
+        var trafficFine =
+            CreateTrafficFine(
+                status: TrafficFineStatus.New);
+
+        var fixture =
+            CreateFixture(
+                trafficFine,
+                workflow);
+
+        var operatorUser =
+            CreateUser(
+                RoleNames.Operator);
+
+        var request =
+            new TrafficFineCreateRequest(
+                1,
+                DateOnly.FromDateTime(
+                    DateTime.Now).AddDays(7),
+                1_250m,
+                "Gelecek tarih testi");
+
+        var result =
+            await fixture.Service.CreateAsync(
+                request,
+                operatorUser);
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            TrafficFineCommandError.Validation,
+            result.Error);
+
+        Assert.Equal(
+            "FineDate",
+            result.ErrorField);
+
+        Assert.Equal(
+            "Ceza tarihi gelecek bir tarih olamaz.",
+            result.ErrorMessage);
+
+        Assert.Equal(
+            0,
+            fixture.UnitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
+    public async Task GetPendingApprovalsAsync_PassesCurrentUserRolesToRepository()
+    {
+        var workflow = CreateThreeStepWorkflow();
+
+        var trafficFine = CreateTrafficFine(
+            status: TrafficFineStatus.InApproval,
+            workflowId: workflow.Id,
+            currentStepId: 10);
+
+        var fixture = CreateFixture(
+            trafficFine,
+            workflow);
+
+        fixture.TrafficFineRepository.PendingRecords.Add(
+            new TrafficFineListRecord(
+                trafficFine.Id,
+                "41 ABC 123",
+                "Toyota",
+                "Corolla",
+                trafficFine.FineDate,
+                trafficFine.Amount,
+                TrafficFineStatus.InApproval,
+                "operator@demo.local",
+                "Yönetici Onayý"));
+
+        var currentUser = new CurrentUserContext(
+            "multi-role-user-id",
+            "approver@demo.local",
+            new[]
+            {
+                RoleNames.Manager,
+                "Legal"
+            });
+
+        var result =
+            await fixture.Service.GetPendingApprovalsAsync(
+                currentUser);
+
+        Assert.Single(result);
+
+        Assert.Equal(
+            new[]
+            {
+                RoleNames.Manager,
+                "Legal"
+            },
+            fixture.TrafficFineRepository.LastPendingRoles);
+    }
+
     private static TestFixture CreateFixture(
         TrafficFine trafficFine,
         ApprovalWorkflow workflow)
@@ -478,6 +580,7 @@ public sealed class TrafficFineServiceApprovalTests
 
         return new TestFixture(
             service,
+            trafficFineRepository,
             historyRepository,
             unitOfWork);
     }
@@ -571,6 +674,7 @@ public sealed class TrafficFineServiceApprovalTests
 
     private sealed record TestFixture(
         TrafficFineService Service,
+        FakeTrafficFineRepository TrafficFineRepository,
         FakeGenericRepository<ApprovalHistory>
             HistoryRepository,
         FakeUnitOfWork UnitOfWork);
@@ -586,12 +690,30 @@ public sealed class TrafficFineServiceApprovalTests
             _trafficFine = trafficFine;
         }
 
+        public List<TrafficFineListRecord> PendingRecords { get; } = [];
+
+        public IReadOnlyList<string> LastPendingRoles { get; private set; } =
+            Array.Empty<string>();
+
         public Task<IReadOnlyList<TrafficFineListRecord>>
             ListAsync(
                 CancellationToken cancellationToken = default)
         {
             IReadOnlyList<TrafficFineListRecord> result =
                 Array.Empty<TrafficFineListRecord>();
+
+            return Task.FromResult(result);
+        }
+
+        public Task<IReadOnlyList<TrafficFineListRecord>>
+            GetPendingForRolesAsync(
+                IEnumerable<string> roles,
+                CancellationToken cancellationToken = default)
+        {
+            LastPendingRoles = roles.ToArray();
+
+            IReadOnlyList<TrafficFineListRecord> result =
+                PendingRecords.ToList();
 
             return Task.FromResult(result);
         }

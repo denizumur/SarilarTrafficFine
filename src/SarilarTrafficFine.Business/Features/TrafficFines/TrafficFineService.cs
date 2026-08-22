@@ -1,4 +1,5 @@
 using SarilarTrafficFine.Business.Abstractions.Persistence;
+using SarilarTrafficFine.Business.Abstractions.Persistence.Models;
 using SarilarTrafficFine.Business.Constants;
 using SarilarTrafficFine.Business.Exceptions;
 using SarilarTrafficFine.Business.Features.TrafficFines.Models;
@@ -37,12 +38,23 @@ public sealed class TrafficFineService : ITrafficFineService
         IGenericRepository<Vehicle> vehicleRepository,
         IUnitOfWork unitOfWork)
     {
-        _trafficFineRepository = trafficFineRepository;
-        _approvalWorkflowRepository = approvalWorkflowRepository;
-        _genericTrafficFineRepository = genericTrafficFineRepository;
-        _approvalHistoryRepository = approvalHistoryRepository;
-        _vehicleRepository = vehicleRepository;
-        _unitOfWork = unitOfWork;
+        _trafficFineRepository =
+            trafficFineRepository;
+
+        _approvalWorkflowRepository =
+            approvalWorkflowRepository;
+
+        _genericTrafficFineRepository =
+            genericTrafficFineRepository;
+
+        _approvalHistoryRepository =
+            approvalHistoryRepository;
+
+        _vehicleRepository =
+            vehicleRepository;
+
+        _unitOfWork =
+            unitOfWork;
     }
 
     public async Task<IReadOnlyList<TrafficFineListItemDto>> ListAsync(
@@ -52,18 +64,26 @@ public sealed class TrafficFineService : ITrafficFineService
             await _trafficFineRepository.ListAsync(
                 cancellationToken);
 
-        return records
-            .Select(record =>
-                new TrafficFineListItemDto(
-                    record.Id,
-                    record.PlateNumber,
-                    $"{record.Brand} {record.Model}",
-                    record.FineDate,
-                    record.Amount,
-                    record.Status,
-                    record.CreatedByUserName,
-                    record.CurrentStepName))
-            .ToList();
+        return MapListItems(
+            records);
+    }
+
+    public async Task<IReadOnlyList<TrafficFineListItemDto>>
+        GetPendingApprovalsAsync(
+            CurrentUserContext currentUser,
+            CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(
+            currentUser);
+
+        var records =
+            await _trafficFineRepository
+                .GetPendingForRolesAsync(
+                    currentUser.Roles,
+                    cancellationToken);
+
+        return MapListItems(
+            records);
     }
 
     public async Task<TrafficFineDetailsDto?> GetDetailsAsync(
@@ -102,10 +122,14 @@ public sealed class TrafficFineService : ITrafficFineService
         CurrentUserContext currentUser,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(currentUser);
+        ArgumentNullException.ThrowIfNull(
+            request);
 
-        if (!currentUser.IsInRole(RoleNames.Operator))
+        ArgumentNullException.ThrowIfNull(
+            currentUser);
+
+        if (!currentUser.IsInRole(
+                RoleNames.Operator))
         {
             return Failure(
                 TrafficFineCommandError.Forbidden,
@@ -115,6 +139,7 @@ public sealed class TrafficFineService : ITrafficFineService
         var validation =
             await ValidateFineDataAsync(
                 request.VehicleId,
+                request.FineDate,
                 request.Amount,
                 request.Description,
                 cancellationToken);
@@ -124,17 +149,31 @@ public sealed class TrafficFineService : ITrafficFineService
             return validation;
         }
 
-        var trafficFine = new TrafficFine
-        {
-            VehicleId = request.VehicleId,
-            FineDate = request.FineDate,
-            Amount = request.Amount,
-            Description =
-                NormalizeOptionalText(request.Description),
-            Status = TrafficFineStatus.New,
-            CreatedByUserId = currentUser.UserId,
-            CreatedAt = DateTimeOffset.UtcNow
-        };
+        var trafficFine =
+            new TrafficFine
+            {
+                VehicleId =
+                    request.VehicleId,
+
+                FineDate =
+                    request.FineDate,
+
+                Amount =
+                    request.Amount,
+
+                Description =
+                    NormalizeOptionalText(
+                        request.Description),
+
+                Status =
+                    TrafficFineStatus.New,
+
+                CreatedByUserId =
+                    currentUser.UserId,
+
+                CreatedAt =
+                    DateTimeOffset.UtcNow
+            };
 
         await _genericTrafficFineRepository.AddAsync(
             trafficFine,
@@ -152,10 +191,14 @@ public sealed class TrafficFineService : ITrafficFineService
         CurrentUserContext currentUser,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(currentUser);
+        ArgumentNullException.ThrowIfNull(
+            request);
 
-        if (!currentUser.IsInRole(RoleNames.Operator))
+        ArgumentNullException.ThrowIfNull(
+            currentUser);
+
+        if (!currentUser.IsInRole(
+                RoleNames.Operator))
         {
             return Failure(
                 TrafficFineCommandError.Forbidden,
@@ -163,9 +206,10 @@ public sealed class TrafficFineService : ITrafficFineService
         }
 
         var trafficFine =
-            await _trafficFineRepository.GetForUpdateAsync(
-                request.Id,
-                cancellationToken);
+            await _trafficFineRepository
+                .GetForUpdateAsync(
+                    request.Id,
+                    cancellationToken);
 
         if (trafficFine is null)
         {
@@ -174,7 +218,8 @@ public sealed class TrafficFineService : ITrafficFineService
                 "Trafik cezasý bulunamadý.");
         }
 
-        if (trafficFine.Status != TrafficFineStatus.New)
+        if (trafficFine.Status !=
+            TrafficFineStatus.New)
         {
             return Failure(
                 TrafficFineCommandError.InvalidState,
@@ -184,6 +229,7 @@ public sealed class TrafficFineService : ITrafficFineService
         var validation =
             await ValidateFineDataAsync(
                 request.VehicleId,
+                request.FineDate,
                 request.Amount,
                 request.Description,
                 cancellationToken);
@@ -204,11 +250,19 @@ public sealed class TrafficFineService : ITrafficFineService
             trafficFine,
             request.ExpectedRowVersion);
 
-        trafficFine.VehicleId = request.VehicleId;
-        trafficFine.FineDate = request.FineDate;
-        trafficFine.Amount = request.Amount;
+        trafficFine.VehicleId =
+            request.VehicleId;
+
+        trafficFine.FineDate =
+            request.FineDate;
+
+        trafficFine.Amount =
+            request.Amount;
+
         trafficFine.Description =
-            NormalizeOptionalText(request.Description);
+            NormalizeOptionalText(
+                request.Description);
+
         trafficFine.UpdatedAt =
             DateTimeOffset.UtcNow;
 
@@ -231,9 +285,11 @@ public sealed class TrafficFineService : ITrafficFineService
         CurrentUserContext currentUser,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(currentUser);
+        ArgumentNullException.ThrowIfNull(
+            currentUser);
 
-        if (!currentUser.IsInRole(RoleNames.Operator))
+        if (!currentUser.IsInRole(
+                RoleNames.Operator))
         {
             return Failure(
                 TrafficFineCommandError.Forbidden,
@@ -241,9 +297,10 @@ public sealed class TrafficFineService : ITrafficFineService
         }
 
         var trafficFine =
-            await _trafficFineRepository.GetForUpdateAsync(
-                id,
-                cancellationToken);
+            await _trafficFineRepository
+                .GetForUpdateAsync(
+                    id,
+                    cancellationToken);
 
         if (trafficFine is null)
         {
@@ -252,7 +309,8 @@ public sealed class TrafficFineService : ITrafficFineService
                 "Trafik cezasý bulunamadý.");
         }
 
-        if (trafficFine.Status != TrafficFineStatus.New)
+        if (trafficFine.Status !=
+            TrafficFineStatus.New)
         {
             return Failure(
                 TrafficFineCommandError.InvalidState,
@@ -271,9 +329,11 @@ public sealed class TrafficFineService : ITrafficFineService
                 "Aktif trafik cezasý onay akýþý bulunamadý.");
         }
 
-        var firstStep = workflow.Steps
-            .OrderBy(step => step.StepOrder)
-            .FirstOrDefault();
+        var firstStep =
+            workflow.Steps
+                .OrderBy(step =>
+                    step.StepOrder)
+                .FirstOrDefault();
 
         if (firstStep is null)
         {
@@ -327,7 +387,8 @@ public sealed class TrafficFineService : ITrafficFineService
         CurrentUserContext currentUser,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(currentUser);
+        ArgumentNullException.ThrowIfNull(
+            currentUser);
 
         var preparation =
             await PrepareApprovalActionAsync(
@@ -354,11 +415,14 @@ public sealed class TrafficFineService : ITrafficFineService
                 TrafficFineStatus.InApproval,
                 currentStep.Name);
 
-        var nextStep = workflow.Steps
-            .Where(step =>
-                step.StepOrder > currentStep.StepOrder)
-            .OrderBy(step => step.StepOrder)
-            .FirstOrDefault();
+        var nextStep =
+            workflow.Steps
+                .Where(step =>
+                    step.StepOrder >
+                    currentStep.StepOrder)
+                .OrderBy(step =>
+                    step.StepOrder)
+                .FirstOrDefault();
 
         var now =
             DateTimeOffset.UtcNow;
@@ -417,10 +481,12 @@ public sealed class TrafficFineService : ITrafficFineService
         CurrentUserContext currentUser,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(currentUser);
+        ArgumentNullException.ThrowIfNull(
+            currentUser);
 
         var normalizedReason =
-            NormalizeOptionalText(reason);
+            NormalizeOptionalText(
+                reason);
 
         if (normalizedReason is null)
         {
@@ -501,9 +567,10 @@ public sealed class TrafficFineService : ITrafficFineService
             CancellationToken cancellationToken)
     {
         var trafficFine =
-            await _trafficFineRepository.GetForUpdateAsync(
-                id,
-                cancellationToken);
+            await _trafficFineRepository
+                .GetForUpdateAsync(
+                    id,
+                    cancellationToken);
 
         if (trafficFine is null)
         {
@@ -588,22 +655,42 @@ public sealed class TrafficFineService : ITrafficFineService
         ApprovalWorkflowStep? workflowStep,
         CancellationToken cancellationToken)
     {
-        var history = new ApprovalHistory
-        {
-            TrafficFineId = trafficFine.Id,
-            ActionByUserId = currentUser.UserId,
-            ActionByUserName = currentUser.UserName,
-            ActionType = actionType,
-            ActionAt = actionAt,
-            Comment = comment,
-            PreviousState = previousState,
-            NewState = newState,
-            WorkflowStepId = workflowStep?.Id,
-            WorkflowStepOrder =
-                workflowStep?.StepOrder,
-            WorkflowStepName =
-                workflowStep?.Name
-        };
+        var history =
+            new ApprovalHistory
+            {
+                TrafficFineId =
+                    trafficFine.Id,
+
+                ActionByUserId =
+                    currentUser.UserId,
+
+                ActionByUserName =
+                    currentUser.UserName,
+
+                ActionType =
+                    actionType,
+
+                ActionAt =
+                    actionAt,
+
+                Comment =
+                    comment,
+
+                PreviousState =
+                    previousState,
+
+                NewState =
+                    newState,
+
+                WorkflowStepId =
+                    workflowStep?.Id,
+
+                WorkflowStepOrder =
+                    workflowStep?.StepOrder,
+
+                WorkflowStepName =
+                    workflowStep?.Name
+            };
 
         await _approvalHistoryRepository.AddAsync(
             history,
@@ -632,10 +719,23 @@ public sealed class TrafficFineService : ITrafficFineService
     private async Task<TrafficFineCommandResult?>
         ValidateFineDataAsync(
             int vehicleId,
+            DateOnly fineDate,
             decimal amount,
             string? description,
             CancellationToken cancellationToken)
     {
+        var today =
+            DateOnly.FromDateTime(
+                DateTime.Now);
+
+        if (fineDate > today)
+        {
+            return Failure(
+                TrafficFineCommandError.Validation,
+                "Ceza tarihi gelecek bir tarih olamaz.",
+                "FineDate");
+        }
+
         if (vehicleId <= 0)
         {
             return Failure(
@@ -668,7 +768,8 @@ public sealed class TrafficFineService : ITrafficFineService
         }
 
         var normalizedDescription =
-            NormalizeOptionalText(description);
+            NormalizeOptionalText(
+                description);
 
         if (normalizedDescription?.Length >
             DescriptionMaxLength)
@@ -682,6 +783,24 @@ public sealed class TrafficFineService : ITrafficFineService
         return null;
     }
 
+    private static IReadOnlyList<TrafficFineListItemDto>
+        MapListItems(
+            IEnumerable<TrafficFineListRecord> records)
+    {
+        return records
+            .Select(record =>
+                new TrafficFineListItemDto(
+                    record.Id,
+                    record.PlateNumber,
+                    $"{record.Brand} {record.Model}",
+                    record.FineDate,
+                    record.Amount,
+                    record.Status,
+                    record.CreatedByUserName,
+                    record.CurrentStepName))
+            .ToList();
+    }
+
     private static string BuildStateSnapshot(
         TrafficFineStatus status,
         string? stepName)
@@ -692,8 +811,9 @@ public sealed class TrafficFineService : ITrafficFineService
                 "Yeni",
 
             TrafficFineStatus.InApproval
-                when !string.IsNullOrWhiteSpace(stepName) =>
-                    $"Onayda · {stepName}",
+                when !string.IsNullOrWhiteSpace(
+                    stepName) =>
+                $"Onayda · {stepName}",
 
             TrafficFineStatus.InApproval =>
                 "Onayda",
@@ -712,7 +832,8 @@ public sealed class TrafficFineService : ITrafficFineService
     private static string? NormalizeOptionalText(
         string? value)
     {
-        return string.IsNullOrWhiteSpace(value)
+        return string.IsNullOrWhiteSpace(
+            value)
             ? null
             : value.Trim();
     }

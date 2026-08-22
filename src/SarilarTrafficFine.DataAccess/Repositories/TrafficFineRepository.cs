@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SarilarTrafficFine.Business.Abstractions.Persistence;
 using SarilarTrafficFine.Business.Abstractions.Persistence.Models;
 using SarilarTrafficFine.DataAccess.Context;
+using SarilarTrafficFine.Entities.Enums;
 using SarilarTrafficFine.Entities.Models;
 
 namespace SarilarTrafficFine.DataAccess.Repositories;
@@ -49,6 +50,64 @@ public sealed class TrafficFineRepository : ITrafficFineRepository
                 currentStep == null
                     ? null
                     : currentStep.Name);
+
+        return await query.ToListAsync(
+            cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<TrafficFineListRecord>>
+        GetPendingForRolesAsync(
+            IEnumerable<string> roles,
+            CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(roles);
+
+        var normalizedRoles = roles
+            .Where(role =>
+                !string.IsNullOrWhiteSpace(role))
+            .Select(role =>
+                role.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        if (normalizedRoles.Length == 0)
+        {
+            return Array.Empty<TrafficFineListRecord>();
+        }
+
+        var query =
+            from trafficFine in _context.TrafficFines.AsNoTracking()
+
+            join user in _context.Users.AsNoTracking()
+                on trafficFine.CreatedByUserId equals user.Id
+
+            join currentStep in
+                _context.Set<ApprovalWorkflowStep>().AsNoTracking()
+                on trafficFine.CurrentApprovalStepId equals currentStep.Id
+
+            where
+                trafficFine.Status ==
+                    TrafficFineStatus.InApproval
+                && normalizedRoles.Contains(
+                    currentStep.RequiredRole)
+
+            orderby
+                (trafficFine.UpdatedAt
+                    ?? trafficFine.CreatedAt) ascending,
+                trafficFine.Id ascending
+
+            select new TrafficFineListRecord(
+                trafficFine.Id,
+                trafficFine.Vehicle.PlateNumber,
+                trafficFine.Vehicle.Brand,
+                trafficFine.Vehicle.Model,
+                trafficFine.FineDate,
+                trafficFine.Amount,
+                trafficFine.Status,
+                user.UserName
+                    ?? user.Email
+                    ?? trafficFine.CreatedByUserId,
+                currentStep.Name);
 
         return await query.ToListAsync(
             cancellationToken);

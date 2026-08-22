@@ -24,6 +24,23 @@
 
     var controller =
         ViewContext.RouteData.Values["controller"]?.ToString();
+
+    var action =
+        ViewContext.RouteData.Values["action"]?.ToString();
+
+    var isPendingApprovals =
+        string.Equals(
+            controller,
+            "TrafficFines",
+            StringComparison.OrdinalIgnoreCase)
+        && string.Equals(
+            action,
+            "PendingApprovals",
+            StringComparison.OrdinalIgnoreCase);
+
+    var canViewPendingApprovals =
+        User.IsInRole(RoleNames.Manager)
+        || User.IsInRole(RoleNames.Finance);
 }
 
 <!DOCTYPE html>
@@ -95,7 +112,7 @@ else if (isAuthenticated)
 
             <a asp-controller="TrafficFines"
                asp-action="Index"
-               class="app-nav-link @(controller == "TrafficFines" ? "active" : "")">
+               class="app-nav-link @(controller == "TrafficFines" && !isPendingApprovals ? "active" : "")">
 
                 <i class="bi bi-receipt-cutoff"></i>
 
@@ -103,6 +120,20 @@ else if (isAuthenticated)
                     Trafik Cezaları
                 </span>
             </a>
+
+            @if (canViewPendingApprovals)
+            {
+            <a asp-controller="TrafficFines"
+               asp-action="PendingApprovals"
+               class="app-nav-link @(isPendingApprovals ? "active" : "")">
+
+                <i class="bi bi-inbox"></i>
+
+                <span class="app-nav-text">
+                    Bekleyen Onaylar
+                </span>
+            </a>
+            }
         </nav>
 
         <div class="app-sidebar-footer">

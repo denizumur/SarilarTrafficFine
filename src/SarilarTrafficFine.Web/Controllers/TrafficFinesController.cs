@@ -46,25 +46,26 @@ public sealed class TrafficFinesController : Controller
                 cancellationToken);
 
         var model = trafficFines
-            .Select(trafficFine =>
-            {
-                var status =
-                    GetStatusPresentation(
-                        trafficFine.Status,
-                        trafficFine.CurrentStepName);
+            .Select(BuildListItemViewModel)
+            .ToList();
 
-                return new TrafficFineListItemViewModel(
-                    trafficFine.Id,
-                    trafficFine.PlateNumber,
-                    trafficFine.VehicleName,
-                    trafficFine.FineDate,
-                    trafficFine.Amount,
-                    trafficFine.Status,
-                    status.Text,
-                    status.CssClass,
-                    trafficFine.CreatedByUserName,
-                    trafficFine.CurrentStepName);
-            })
+        return View(model);
+    }
+
+    [Authorize(
+        Roles = RoleNames.Manager + "," + RoleNames.Finance)]
+    [HttpGet]
+    public async Task<IActionResult> PendingApprovals(
+        CancellationToken cancellationToken)
+    {
+        var trafficFines =
+            await _trafficFineService
+                .GetPendingApprovalsAsync(
+                    User.ToCurrentUserContext(),
+                    cancellationToken);
+
+        var model = trafficFines
+            .Select(BuildListItemViewModel)
             .ToList();
 
         return View(model);
@@ -684,6 +685,28 @@ public sealed class TrafficFinesController : Controller
                     history.WorkflowStepName);
             })
             .ToList();
+    }
+
+    private static TrafficFineListItemViewModel
+        BuildListItemViewModel(
+            TrafficFineListItemDto trafficFine)
+    {
+        var status =
+            GetStatusPresentation(
+                trafficFine.Status,
+                trafficFine.CurrentStepName);
+
+        return new TrafficFineListItemViewModel(
+            trafficFine.Id,
+            trafficFine.PlateNumber,
+            trafficFine.VehicleName,
+            trafficFine.FineDate,
+            trafficFine.Amount,
+            trafficFine.Status,
+            status.Text,
+            status.CssClass,
+            trafficFine.CreatedByUserName,
+            trafficFine.CurrentStepName);
     }
 
     private static StatusPresentation GetStatusPresentation(

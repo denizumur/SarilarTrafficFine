@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SarilarTrafficFine.Web.Validation;
 
 namespace SarilarTrafficFine.Web.Models.TrafficFines;
 
@@ -15,6 +16,8 @@ public sealed class TrafficFineCreateViewModel
     [Required(ErrorMessage = "Ceza tarihi zorunludur.")]
     [DataType(DataType.Date)]
     [Display(Name = "Ceza Tarihi")]
+    [NotFutureDate(
+        ErrorMessage = "Ceza tarihi gelecek bir tarih olamaz.")]
     public DateOnly? FineDate { get; set; }
 
     [Required(ErrorMessage = "Ceza tutarý zorunludur.")]

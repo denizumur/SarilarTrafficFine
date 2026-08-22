@@ -8,6 +8,10 @@ public interface ITrafficFineService
     Task<IReadOnlyList<TrafficFineListItemDto>> ListAsync(
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<TrafficFineListItemDto>> GetPendingApprovalsAsync(
+        CurrentUserContext currentUser,
+        CancellationToken cancellationToken = default);
+
     Task<TrafficFineDetailsDto?> GetDetailsAsync(
         int id,
         CancellationToken cancellationToken = default);
