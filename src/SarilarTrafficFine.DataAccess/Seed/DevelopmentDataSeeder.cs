@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SarilarTrafficFine.Business.Constants;
 using SarilarTrafficFine.DataAccess.Context;
@@ -10,12 +11,22 @@ namespace SarilarTrafficFine.DataAccess.Seed;
 
 public static class DevelopmentDataSeeder
 {
-    private const string DemoPassword = "Demo123!";
-
     public static async Task SeedDevelopmentDataAsync(
         this IServiceProvider services)
     {
         using var scope = services.CreateScope();
+
+        var configuration =
+            scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+        var demoPassword =
+            configuration["Seed:DemoPassword"];
+
+        if (string.IsNullOrWhiteSpace(demoPassword))
+        {
+            throw new InvalidOperationException(
+                "Development demo kullanýcýlarý için 'Seed:DemoPassword' yapýlandýrmasý bulunamadý.");
+        }
 
         var roleManager =
             scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -33,16 +44,19 @@ public static class DevelopmentDataSeeder
         await EnsureUserAsync(
             userManager,
             "operator@demo.local",
+            demoPassword,
             RoleNames.Operator);
 
         await EnsureUserAsync(
             userManager,
             "manager@demo.local",
+            demoPassword,
             RoleNames.Manager);
 
         await EnsureUserAsync(
             userManager,
             "finance@demo.local",
+            demoPassword,
             RoleNames.Finance);
 
         await EnsureTrafficFineWorkflowAsync(dbContext);
@@ -68,6 +82,7 @@ public static class DevelopmentDataSeeder
     private static async Task EnsureUserAsync(
         UserManager<ApplicationUser> userManager,
         string email,
+        string password,
         string roleName)
     {
         var user = await userManager.FindByEmailAsync(email);
@@ -82,7 +97,7 @@ public static class DevelopmentDataSeeder
             };
 
             var createResult =
-                await userManager.CreateAsync(user, DemoPassword);
+                await userManager.CreateAsync(user, password);
 
             EnsureSucceeded(
                 createResult,

@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using SarilarTrafficFine.Business.Abstractions.Persistence;
+using SarilarTrafficFine.Business.Exceptions;
 using SarilarTrafficFine.DataAccess.Context;
 
 namespace SarilarTrafficFine.DataAccess.UnitOfWork;
@@ -12,9 +14,19 @@ public sealed class EfUnitOfWork : IUnitOfWork
         _context = context;
     }
 
-    public Task<int> SaveChangesAsync(
+    public async Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {
-        return _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            return await _context.SaveChangesAsync(
+                cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException exception)
+        {
+            throw new ConcurrencyConflictException(
+                "Kayýt baþka bir kullanýcý tarafýndan güncellendi.",
+                exception);
+        }
     }
 }

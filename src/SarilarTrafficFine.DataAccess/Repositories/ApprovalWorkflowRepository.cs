@@ -10,20 +10,37 @@ public sealed class ApprovalWorkflowRepository
 {
     private readonly AppDbContext _context;
 
-    public ApprovalWorkflowRepository(AppDbContext context)
+    public ApprovalWorkflowRepository(
+        AppDbContext context)
     {
         _context = context;
     }
 
-    public Task<ApprovalWorkflow?> GetActiveByCodeWithStepsAsync(
-        string code,
-        CancellationToken cancellationToken = default)
+    public Task<ApprovalWorkflow?>
+        GetActiveByCodeWithStepsAsync(
+            string code,
+            CancellationToken cancellationToken = default)
     {
         return _context.ApprovalWorkflows
             .AsNoTracking()
-            .Include(x => x.Steps)
-            .FirstOrDefaultAsync(
-                x => x.Code == code && x.IsActive,
+            .Include(workflow => workflow.Steps)
+            .SingleOrDefaultAsync(
+                workflow =>
+                    workflow.Code == code
+                    && workflow.IsActive,
+                cancellationToken);
+    }
+
+    public Task<ApprovalWorkflow?>
+        GetByIdWithStepsAsync(
+            int id,
+            CancellationToken cancellationToken = default)
+    {
+        return _context.ApprovalWorkflows
+            .AsNoTracking()
+            .Include(workflow => workflow.Steps)
+            .SingleOrDefaultAsync(
+                workflow => workflow.Id == id,
                 cancellationToken);
     }
 }

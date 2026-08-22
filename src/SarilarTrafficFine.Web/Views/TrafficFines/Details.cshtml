@@ -1,0 +1,534 @@
+﻿@using System.Globalization
+@using SarilarTrafficFine.Entities.Enums
+@model SarilarTrafficFine.Web.Models.TrafficFines.TrafficFineDetailsViewModel
+
+@{
+    ViewData["Title"] = "Trafik Cezası Detayı";
+
+    var tr =
+        CultureInfo.GetCultureInfo("tr-TR");
+}
+
+<div class="page-header">
+    <div>
+        <a asp-action="Index"
+           class="text-decoration-none small">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Trafik cezalarına dön
+        </a>
+
+        <div class="d-flex align-items-center flex-wrap gap-3 mt-3">
+            <h1 class="page-title mb-0">
+                @Model.PlateNumber
+            </h1>
+
+            <span class="sr-status-badge @Model.StatusCssClass">
+                @Model.StatusText
+            </span>
+        </div>
+
+        <p class="page-description mt-1">
+            Trafik cezası #@Model.Id
+        </p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+        @if (Model.CanEdit)
+        {
+        <a asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn btn-outline-primary">
+
+            <i class="bi bi-pencil me-1"></i>
+            Düzenle
+        </a>
+        }
+
+        @if (Model.CanSubmit)
+        {
+        <form asp-action="Submit"
+              asp-route-id="@Model.Id"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+                <i class="bi bi-send me-1"></i>
+                Onaya Gönder
+            </button>
+        </form>
+        }
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+<div class="alert sr-success-alert"
+     role="alert">
+
+    <i class="bi bi-check-circle me-1"></i>
+    @successMessage
+</div>
+}
+
+@if (TempData["WarningMessage"] is string warningMessage)
+{
+<div class="alert sr-warning-alert"
+     role="alert">
+
+    <i class="bi bi-exclamation-triangle me-1"></i>
+    @warningMessage
+</div>
+}
+
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+<div class="alert alert-danger"
+     role="alert">
+
+    <i class="bi bi-exclamation-circle me-1"></i>
+    @errorMessage
+</div>
+}
+
+<div class="fine-details-grid">
+    <section class="app-surface fine-details-card">
+        <div class="fine-card-header">
+            <div>
+                <h2 class="h5 mb-1">
+                    Ceza Bilgileri
+                </h2>
+
+                <p class="text-muted small mb-0">
+                    Kayıt ve araç detayları
+                </p>
+            </div>
+
+            <i class="bi bi-receipt-cutoff"></i>
+        </div>
+
+        <div class="fine-details-list">
+            <div class="fine-detail-item">
+                <span class="fine-detail-label">
+                    Plaka
+                </span>
+
+                <span class="vehicle-plate">
+                    @Model.PlateNumber
+                </span>
+            </div>
+
+            <div class="fine-detail-item">
+                <span class="fine-detail-label">
+                    Araç
+                </span>
+
+                <span>
+                    @Model.VehicleName
+                </span>
+            </div>
+
+            <div class="fine-detail-item">
+                <span class="fine-detail-label">
+                    Ceza Tarihi
+                </span>
+
+                <span class="fine-date">
+                    @Model.FineDate.ToString("dd.MM.yyyy")
+                </span>
+            </div>
+
+            <div class="fine-detail-item">
+                <span class="fine-detail-label">
+                    Ceza Tutarı
+                </span>
+
+                <span class="fine-money fine-detail-money">
+                    @Model.Amount.ToString("N2", tr) ₺
+                </span>
+            </div>
+
+            <div class="fine-detail-item">
+                <span class="fine-detail-label">
+                    Oluşturan
+                </span>
+
+                <span>
+                    @Model.CreatedByUserName
+                </span>
+            </div>
+
+            <div class="fine-detail-item">
+                <span class="fine-detail-label">
+                    Oluşturulma
+                </span>
+
+                <span class="fine-date">
+                    @(Model.CreatedAt
+                        .ToLocalTime()
+                        .ToString("dd.MM.yyyy HH:mm"))
+                </span>
+            </div>
+
+            @if (Model.UpdatedAt.HasValue)
+            {
+            <div class="fine-detail-item">
+                <span class="fine-detail-label">
+                    Son Güncelleme
+                </span>
+
+                <span class="fine-date">
+                    @(Model.UpdatedAt.Value
+                            .ToLocalTime()
+                            .ToString("dd.MM.yyyy HH:mm"))
+                </span>
+            </div>
+            }
+        </div>
+
+        <div class="fine-description-block">
+            <div class="fine-detail-label mb-2">
+                Açıklama
+            </div>
+
+            @if (string.IsNullOrWhiteSpace(Model.Description))
+            {
+            <span class="text-muted">
+                Açıklama eklenmemiş.
+            </span>
+            }
+            else
+            {
+            <p class="mb-0 fine-description-text">
+                @Model.Description
+            </p>
+            }
+        </div>
+    </section>
+
+    <aside>
+        <section class="app-surface fine-details-card">
+            <div class="fine-card-header">
+                <div>
+                    <h2 class="h5 mb-1">
+                        Onay Akışı
+                    </h2>
+
+                    <p class="text-muted small mb-0">
+                        Mevcut workflow durumu
+                    </p>
+                </div>
+
+                <i class="bi bi-diagram-3"></i>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(
+                Model.WorkflowConfigurationError))
+            {
+            <div class="alert alert-danger mb-0">
+                @Model.WorkflowConfigurationError
+            </div>
+            }
+            else if (Model.Status == TrafficFineStatus.New)
+            {
+            <div class="workflow-placeholder">
+                <div class="workflow-placeholder-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+
+                <h3 class="h6">
+                    Onay akışı henüz başlatılmadı.
+                </h3>
+
+                <p class="text-muted small mb-0">
+                    Kayıt Yeni durumunda.
+                    Operatör tarafından onaya gönderildiğinde
+                    aktif workflow'un ilk aşamasına ilerler.
+                </p>
+            </div>
+            }
+            else
+            {
+            <ol class="workflow-stepper">
+                @foreach (var step in Model.WorkflowSteps)
+                    {
+                <li class="workflow-step @step.StateCssClass">
+                    <div class="workflow-step-marker">
+                        @if (step.StateCssClass ==
+                                    "workflow-step-completed")
+                                {
+                        <i class="bi bi-check-lg"></i>
+                                }
+                                else if (step.StateCssClass ==
+                                    "workflow-step-rejected")
+                                {
+                        <i class="bi bi-x-lg"></i>
+                                }
+                                else
+                                {
+                        @step.StepOrder
+                                }
+                    </div>
+
+                    <div class="workflow-step-content">
+                        <div class="d-flex justify-content-between gap-2">
+                            <strong>
+                                @step.Name
+                            </strong>
+
+                            <span class="workflow-step-state">
+                                @step.StateText
+                            </span>
+                        </div>
+
+                        <span class="text-muted small">
+                            @step.RequiredRoleText
+                        </span>
+                    </div>
+                </li>
+                    }
+            </ol>
+            }
+
+            @if (Model.Status ==
+                TrafficFineStatus.InApproval)
+            {
+            <div class="workflow-action-box">
+                <div class="fine-detail-label">
+                    Mevcut Aşama
+                </div>
+
+                <strong>
+                    @Model.CurrentStepName
+                </strong>
+
+                <span class="text-muted small">
+                    Yetkili rol:
+                    @Model.CurrentStepRequiredRoleText
+                </span>
+
+                @if (Model.CanApproveOrReject)
+                    {
+                <div class="d-grid gap-2 mt-3">
+                    <form asp-action="Approve"
+                          asp-route-id="@Model.Id"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-success w-100">
+
+                            <i class="bi bi-check-lg me-1"></i>
+                            Onayla
+                        </button>
+                    </form>
+
+                    <button type="button"
+                            class="btn btn-outline-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#rejectModal">
+
+                        <i class="bi bi-x-lg me-1"></i>
+                        Reddet
+                    </button>
+                </div>
+                    }
+                    else
+                    {
+                <div class="workflow-readonly-note mt-3">
+                    <i class="bi bi-lock"></i>
+
+                    <span>
+                        Bu aşamadaki işlem
+                        <strong>
+                            @Model.CurrentStepRequiredRoleText
+                        </strong>
+                        rolündeki kullanıcı tarafından yapılabilir.
+                    </span>
+                </div>
+                    }
+            </div>
+            }
+            else if (Model.Status ==
+                TrafficFineStatus.Completed)
+            {
+            <div class="workflow-terminal workflow-terminal-success">
+                <i class="bi bi-check-circle"></i>
+
+                <span>
+                    Onay süreci tamamlandı.
+                </span>
+            </div>
+            }
+            else if (Model.Status ==
+                TrafficFineStatus.Rejected)
+            {
+            <div class="workflow-terminal workflow-terminal-danger">
+                <i class="bi bi-x-circle"></i>
+
+                <span>
+                    Kayıt reddedildi.
+                    P0 akışında yeniden onaya gönderilemez.
+                </span>
+            </div>
+            }
+        </section>
+    </aside>
+</div>
+
+<section class="app-surface fine-details-card mt-4">
+    <div class="fine-card-header">
+        <div>
+            <h2 class="h5 mb-1">
+                Onay Geçmişi
+            </h2>
+
+            <p class="text-muted small mb-0">
+                Kayıt üzerinde gerçekleşen onay işlemleri
+            </p>
+        </div>
+
+        <i class="bi bi-clock-history"></i>
+    </div>
+
+    @if (Model.ApprovalHistory.Count == 0)
+    {
+    <div class="workflow-history-empty">
+        Henüz onay geçmişi bulunmuyor.
+    </div>
+    }
+    else
+    {
+    <div class="approval-timeline">
+        @foreach (var history in Model.ApprovalHistory)
+            {
+        <article class="approval-history-item @history.ActionCssClass">
+            <div class="approval-history-marker">
+            </div>
+
+            <div class="approval-history-content">
+                <div class="approval-history-header">
+                    <div>
+                        <strong>
+                            @history.ActionText
+                        </strong>
+
+                        @if (!string.IsNullOrWhiteSpace(
+                                    history.WorkflowStepName))
+                                {
+                        <span class="text-muted small ms-1">
+                            · @history.WorkflowStepName
+                        </span>
+                                }
+                    </div>
+
+                    <time>
+                        @(history.ActionAt
+                                    .ToLocalTime()
+                                    .ToString("dd.MM.yyyy HH:mm"))
+                    </time>
+                </div>
+
+                <div class="approval-history-user">
+                    <i class="bi bi-person"></i>
+                    @history.ActionByUserName
+                </div>
+
+                <div class="approval-state-change">
+                    <span>
+                        @history.PreviousState
+                    </span>
+
+                    <i class="bi bi-arrow-right"></i>
+
+                    <strong>
+                        @history.NewState
+                    </strong>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(
+                            history.Comment))
+                        {
+                <p class="approval-history-comment">
+                    @history.Comment
+                </p>
+                        }
+            </div>
+        </article>
+            }
+    </div>
+    }
+</section>
+
+@if (Model.CanApproveOrReject)
+{
+<div class="modal fade"
+     id="rejectModal"
+     tabindex="-1"
+     aria-labelledby="rejectModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-action="Reject"
+                  asp-route-id="@Model.Id"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5"
+                        id="rejectModalLabel">
+
+                        Trafik Cezasını Reddet
+                    </h2>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Kapat">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <label for="reason"
+                           class="form-label">
+
+                        Ret Nedeni
+                    </label>
+
+                    <textarea id="reason"
+                              name="reason"
+                              class="form-control"
+                              rows="4"
+                              maxlength="1000"
+                              required
+                              placeholder="Ret nedenini açıklayın...">
+                        </textarea>
+
+                    <div class="form-text">
+                        Ret nedeni onay geçmişine kaydedilecektir.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Vazgeç
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Reddet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+}

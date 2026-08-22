@@ -1,4 +1,5 @@
 using SarilarTrafficFine.Business.Features.Vehicles;
+using SarilarTrafficFine.Business.Features.TrafficFines; // Eklendi
 using SarilarTrafficFine.DataAccess;
 using SarilarTrafficFine.DataAccess.Seed;
 
@@ -9,6 +10,11 @@ builder.Services.AddControllersWithViews();
 // Servis Kayýtlarý (DI Registration)
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 
+// Trafik cezasý servis kaydý eklendi
+builder.Services.AddScoped<ITrafficFineService, TrafficFineService>();
+builder.Services.AddScoped<
+    ITrafficFineApprovalQueryService,
+    TrafficFineApprovalQueryService>();
 builder.Services.AddDataAccess(builder.Configuration);
 
 // Cookie bazlý kimlik doðrulama yönlendirmeleri

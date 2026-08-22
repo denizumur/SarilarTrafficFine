@@ -22,7 +22,9 @@ public static class DependencyInjection
                 "DefaultConnection baðlantý dizesi bulunamadý.");
 
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(connectionString));
+        {
+            options.UseSqlServer(connectionString);
+        });
 
         services
             .AddIdentity<ApplicationUser, IdentityRole>()
@@ -36,6 +38,10 @@ public static class DependencyInjection
         services.AddScoped<
             IApprovalWorkflowRepository,
             ApprovalWorkflowRepository>();
+
+        services.AddScoped<
+            ITrafficFineRepository,
+            TrafficFineRepository>();
 
         services.AddScoped<
             IUnitOfWork,
