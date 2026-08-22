@@ -1,4 +1,4 @@
-﻿# Sarılar Traffic Fine
+# Sarılar Traffic Fine
 
 Sarılar Group Junior .NET Developer case çalışması kapsamında geliştirilen **Trafik Cezası Yönetim ve Onay Modülü**.
 
@@ -585,7 +585,7 @@ görüntülenir.
 
 ## Testler
 
-Approval engine için 9 adet odaklı Business unit testi bulunmaktadır.
+Business katmanında 11 adet odaklı unit test bulunmaktadır. Güncel test suite'i `dotnet test` ile **11/11 PASS** olarak doğrulanmıştır.
 
 Test edilen ana davranışlar:
 
@@ -598,6 +598,8 @@ Test edilen ana davranışlar:
 7. `Completed` kayıt tekrar approve edilemez.
 8. `Rejected` kayıt tekrar approve edilemez.
 9. ApprovalHistory önceki/yeni durum ve workflow step snapshot'ını doğru saklar.
+10. Bekleyen onay sorgusu kullanıcının mevcut rollerini repository katmanına aktarır.
+11. Gelecek tarihli trafik cezası Business validation ile reddedilir.
 
 Dinamik workflow testi özellikle development seed'inden farklı bir zincir kullanır:
 
