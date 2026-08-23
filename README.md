@@ -85,9 +85,9 @@ P0 kapsamında `Tamamlandı` ve `Reddedildi` terminal durumlardır.
 
 ## Teknoloji Yığını
 
-- .NET 10
+- .NET 9
 - ASP.NET Core MVC
-- Entity Framework Core 10
+- Entity Framework Core 9
 - ASP.NET Core Identity
 - SQL Server
 - Bootstrap 5
@@ -337,7 +337,7 @@ Amaç:
 Aşağıdakiler kurulu olmalıdır:
 
 - Git
-- .NET 10 SDK
+- .NET 9 SDK
 - SQL Server veya SQL Server Express
 
 Bu proje local development sırasında SQL Server Express named instance ile doğrulanmıştır:
