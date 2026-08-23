@@ -199,9 +199,11 @@ InApproval
 
 Kurallar:
 
-- Create her zaman `New` oluşturur.
-- Submit yalnız `New` durumunda yapılabilir.
-- Edit yalnız `New` durumunda yapılabilir.
+- Create her zaman `New` oluşturur ve authenticated internal kullanıcılar tarafından yapılabilir.
+- Submit yalnız `New` durumundaki kayıtta ve yalnız kaydı oluşturan kullanıcı tarafından yapılabilir.
+- Edit yalnız `New` durumundaki kayıtta ve yalnız kaydı oluşturan kullanıcı tarafından yapılabilir.
+- Approval/Reject yetkisi aktif workflow aşamasındaki `RequiredRole` değerine göre belirlenir.
+- Bir kullanıcı kendi oluşturduğu trafik cezasını approve/reject edemez.
 - Approve/Reject yalnız mevcut workflow step'inin istediği role sahip kullanıcı tarafından yapılabilir.
 - Reject reason zorunludur.
 - Completed ve Rejected terminaldir.
@@ -213,11 +215,11 @@ Kurallar:
 
 Development ortamında üç rol kullanılır:
 
-| Rol | Sorumluluk |
+| Rol | Yetki |
 |---|---|
-| `Operator` | Araç ve trafik cezası oluşturur, `New` cezaları düzenler ve onaya gönderir |
-| `Manager` | Development seed'indeki Yönetici Onayı aşamasında işlem yapar |
-| `Finance` | Development seed'indeki Finans Onayı aşamasında işlem yapar |
+| `Operator` | Araç oluşturabilir; ayrıca kendi oluşturduğu `New` trafik cezalarını düzenleyip onaya gönderebilir |
+| `Manager` | Kendi oluşturduğu `New` trafik cezalarını düzenleyip onaya gönderebilir; başka kullanıcıların Yönetici Onayı aşamasındaki kayıtlarında işlem yapabilir |
+| `Finance` | Kendi oluşturduğu `New` trafik cezalarını düzenleyip onaya gönderebilir; başka kullanıcıların Finans Onayı aşamasındaki kayıtlarında işlem yapabilir |elopment seed'indeki Finans Onayı aşamasında işlem yapar |
 
 Önemli nokta: Business katmanındaki approval engine, `Manager` veya `Finance` isimlerine göre geçiş yapmaz.
 
@@ -520,6 +522,7 @@ Beklenen:
 Yeni
 -> Onayda · Yönetici Onayı
 ```
+> Bu akış Operator hesabı üzerinden örneklenmiştir. Trafik cezası oluşturma tüm authenticated internal kullanıcılara açıktır; `New` durumundaki bir kaydı düzenleme ve onaya gönderme yetkisi kaydın creator'ına aittir.
 
 ### 2. Manager
 
