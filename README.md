@@ -794,3 +794,4 @@ Bu case çalışmasında QuestPDF aşağıdaki şekilde yapılandırılmıştır
 
 ```csharp
 QuestPDF.Settings.License = LicenseType.Community;
+
