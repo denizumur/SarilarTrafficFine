@@ -12,6 +12,7 @@ public sealed record TrafficFineDetailsRecord(
     decimal Amount,
     string? Description,
     TrafficFineStatus Status,
+    string CreatedByUserId,
     string CreatedByUserName,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt,

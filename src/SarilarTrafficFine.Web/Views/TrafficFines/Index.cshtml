@@ -10,27 +10,27 @@
         CultureInfo.GetCultureInfo("tr-TR");
     }
 
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">
-                Trafik Cezaları
-            </h1>
+                        <div class="page-header">
+                            <div>
+                                <h1 class="page-title">
+                                    Trafik Cezaları
+                                </h1>
 
-            <p class="page-description">
-                Trafik cezası kayıtlarını görüntüleyin ve süreçlerini takip edin.
-            </p>
-        </div>
+                                <p class="page-description">
+                                    Trafik cezası kayıtlarını görüntüleyin ve süreçlerini takip edin.
+                                </p>
+                            </div>
 
-        @if (User.IsInRole(RoleNames.Operator))
+                            @if (User.Identity?.IsAuthenticated == true)
     {
-        <a asp-action="Create"
-           class="btn btn-primary">
+                            <a asp-action="Create"
+                               class="btn btn-primary">
 
-            <i class="bi bi-plus-lg me-1"></i>
-            Yeni Ceza
-        </a>
+                                <i class="bi bi-plus-lg me-1"></i>
+                                Yeni Ceza
+                            </a>
     }
-    </div>
+                        </div>
 
     @if (TempData["SuccessMessage"] is string successMessage)
 {
@@ -113,7 +113,7 @@
                 Trafik cezası kayıtları burada listelenecek.
             </p>
 
-            @if (User.IsInRole(RoleNames.Operator))
+            @if (User.Identity?.IsAuthenticated == true)
             {
             <a asp-action="Create"
                class="btn btn-primary mt-2">

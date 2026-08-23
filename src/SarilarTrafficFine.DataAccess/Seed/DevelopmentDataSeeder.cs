@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+ï»¿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +25,7 @@ public static class DevelopmentDataSeeder
         if (string.IsNullOrWhiteSpace(demoPassword))
         {
             throw new InvalidOperationException(
-                "Development demo kullanýcýlarý için 'Seed:DemoPassword' yapýlandýrmasý bulunamadý.");
+                "Development demo kullanÄ±cÄ±larÄ± iÃ§in 'Seed:DemoPassword' yapÄ±landÄ±rmasÄ± bulunamadÄ±.");
         }
 
         var roleManager =
@@ -70,12 +70,7 @@ public static class DevelopmentDataSeeder
             demoPassword,
             RoleNames.Finance);
 
-        await EnsureUserAsync(
-            userManager,
-            "manager.operator@demo.local",
-            demoPassword,
-            RoleNames.Operator,
-            RoleNames.Manager);
+
 
         await EnsureTrafficFineWorkflowAsync(
             dbContext);
@@ -97,7 +92,7 @@ public static class DevelopmentDataSeeder
 
         EnsureSucceeded(
             result,
-            $"'{roleName}' rolü oluþturulamadý.");
+            $"'{roleName}' rolÃ¼ oluÅŸturulamadÄ±.");
     }
 
     private static async Task EnsureUserAsync(
@@ -127,7 +122,7 @@ public static class DevelopmentDataSeeder
 
             EnsureSucceeded(
                 createResult,
-                $"'{email}' demo kullanýcýsý oluþturulamadý.");
+                $"'{email}' demo kullanÄ±cÄ±sÄ± oluÅŸturulamadÄ±.");
         }
 
         foreach (var roleName in
@@ -148,7 +143,7 @@ public static class DevelopmentDataSeeder
 
             EnsureSucceeded(
                 roleResult,
-                $"'{email}' kullanýcýsýna '{roleName}' rolü atanamadý.");
+                $"'{email}' kullanÄ±cÄ±sÄ±na '{roleName}' rolÃ¼ atanamadÄ±.");
         }
     }
 
@@ -175,7 +170,7 @@ public static class DevelopmentDataSeeder
                     WorkflowCodes.TrafficFine,
 
                 Name =
-                    "Trafik Cezasý Onay Akýþý",
+                    "Trafik CezasÄ± Onay AkÄ±ÅŸÄ±",
 
                 IsActive =
                     true,
@@ -188,7 +183,7 @@ public static class DevelopmentDataSeeder
                     new ApprovalWorkflowStep
                     {
                         StepOrder = 1,
-                        Name = "Yönetici Onayý",
+                        Name = "YÃ¶netici OnayÄ±",
                         RequiredRole =
                             RoleNames.Manager
                     },
@@ -196,7 +191,7 @@ public static class DevelopmentDataSeeder
                     new ApprovalWorkflowStep
                     {
                         StepOrder = 2,
-                        Name = "Finans Onayý",
+                        Name = "Finans OnayÄ±",
                         RequiredRole =
                             RoleNames.Finance
                     }

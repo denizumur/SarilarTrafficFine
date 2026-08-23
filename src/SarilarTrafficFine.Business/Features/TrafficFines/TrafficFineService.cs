@@ -110,6 +110,7 @@ public sealed class TrafficFineService : ITrafficFineService
             record.Amount,
             record.Description,
             record.Status,
+            record.CreatedByUserId,
             record.CreatedByUserName,
             record.CreatedAt,
             record.UpdatedAt,
@@ -127,14 +128,6 @@ public sealed class TrafficFineService : ITrafficFineService
 
         ArgumentNullException.ThrowIfNull(
             currentUser);
-
-        if (!currentUser.IsInRole(
-                RoleNames.Operator))
-        {
-            return Failure(
-                TrafficFineCommandError.Forbidden,
-                "Trafik cezasý oluþturma yetkiniz bulunmuyor.");
-        }
 
         var validation =
             await ValidateFineDataAsync(
@@ -197,14 +190,6 @@ public sealed class TrafficFineService : ITrafficFineService
         ArgumentNullException.ThrowIfNull(
             currentUser);
 
-        if (!currentUser.IsInRole(
-                RoleNames.Operator))
-        {
-            return Failure(
-                TrafficFineCommandError.Forbidden,
-                "Trafik cezasýný düzenleme yetkiniz bulunmuyor.");
-        }
-
         var trafficFine =
             await _trafficFineRepository
                 .GetForUpdateAsync(
@@ -216,6 +201,16 @@ public sealed class TrafficFineService : ITrafficFineService
             return Failure(
                 TrafficFineCommandError.NotFound,
                 "Trafik cezasý bulunamadý.");
+        }
+
+        if (!string.Equals(
+                trafficFine.CreatedByUserId,
+                currentUser.UserId,
+                StringComparison.Ordinal))
+        {
+            return Failure(
+                TrafficFineCommandError.Forbidden,
+                "Yalnýzca kendi oluþturduðunuz trafik cezasýný düzenleyebilirsiniz.");
         }
 
         if (trafficFine.Status !=
@@ -288,14 +283,6 @@ public sealed class TrafficFineService : ITrafficFineService
         ArgumentNullException.ThrowIfNull(
             currentUser);
 
-        if (!currentUser.IsInRole(
-                RoleNames.Operator))
-        {
-            return Failure(
-                TrafficFineCommandError.Forbidden,
-                "Trafik cezasýný onaya gönderme yetkiniz bulunmuyor.");
-        }
-
         var trafficFine =
             await _trafficFineRepository
                 .GetForUpdateAsync(
@@ -307,6 +294,16 @@ public sealed class TrafficFineService : ITrafficFineService
             return Failure(
                 TrafficFineCommandError.NotFound,
                 "Trafik cezasý bulunamadý.");
+        }
+
+        if (!string.Equals(
+                trafficFine.CreatedByUserId,
+                currentUser.UserId,
+                StringComparison.Ordinal))
+        {
+            return Failure(
+                TrafficFineCommandError.Forbidden,
+                "Yalnýzca kendi oluþturduðunuz trafik cezasýný onaya gönderebilirsiniz.");
         }
 
         if (trafficFine.Status !=

@@ -117,7 +117,9 @@ public sealed class TrafficFineServiceApprovalTests
                 workflowId:
                     workflow.Id,
                 currentStepId:
-                    10);
+                    10,
+                createdByUserId:
+                    "manager-user-id");
 
         var fixture =
             CreateFixture(
@@ -125,14 +127,8 @@ public sealed class TrafficFineServiceApprovalTests
                 workflow);
 
         var creatorManagerUser =
-            new CurrentUserContext(
-                "operator-user-id",
-                "operator@demo.local",
-                new[]
-                {
-                    RoleNames.Operator,
-                    RoleNames.Manager
-                });
+            CreateUser(
+                RoleNames.Manager);
 
         var result =
             await fixture.Service.ApproveAsync(
@@ -179,7 +175,9 @@ public sealed class TrafficFineServiceApprovalTests
                 workflowId:
                     workflow.Id,
                 currentStepId:
-                    10);
+                    10,
+                createdByUserId:
+                    "manager-user-id");
 
         var fixture =
             CreateFixture(
@@ -187,14 +185,8 @@ public sealed class TrafficFineServiceApprovalTests
                 workflow);
 
         var creatorManagerUser =
-            new CurrentUserContext(
-                "operator-user-id",
-                "operator@demo.local",
-                new[]
-                {
-                    RoleNames.Operator,
-                    RoleNames.Manager
-                });
+            CreateUser(
+                RoleNames.Manager);
 
         var result =
             await fixture.Service.RejectAsync(
@@ -570,6 +562,362 @@ public sealed class TrafficFineServiceApprovalTests
     }
 
     [Fact]
+    public async Task CreateAsync_ManagerUser_Succeeds()
+    {
+        var workflow =
+            CreateThreeStepWorkflow();
+
+        var fixture =
+            CreateFixture(
+                CreateTrafficFine(
+                    TrafficFineStatus.New),
+                workflow);
+
+        var managerUser =
+            CreateUser(
+                RoleNames.Manager);
+
+        var request =
+            new TrafficFineCreateRequest(
+                1,
+                DateOnly.FromDateTime(
+                    DateTime.Now),
+                2_500m,
+                "Manager trafik cezasý");
+
+        var result =
+            await fixture.Service.CreateAsync(
+                request,
+                managerUser);
+
+        Assert.True(
+            result.Succeeded);
+
+        var createdFine =
+            Assert.Single(
+                fixture.TrafficFineEntityRepository.Items);
+
+        Assert.Equal(
+            "manager-user-id",
+            createdFine.CreatedByUserId);
+
+        Assert.Equal(
+            TrafficFineStatus.New,
+            createdFine.Status);
+
+        Assert.Equal(
+            1,
+            fixture.UnitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
+    public async Task CreateAsync_FinanceUser_Succeeds()
+    {
+        var workflow =
+            CreateThreeStepWorkflow();
+
+        var fixture =
+            CreateFixture(
+                CreateTrafficFine(
+                    TrafficFineStatus.New),
+                workflow);
+
+        var financeUser =
+            CreateUser(
+                RoleNames.Finance);
+
+        var request =
+            new TrafficFineCreateRequest(
+                1,
+                DateOnly.FromDateTime(
+                    DateTime.Now),
+                3_250m,
+                "Finance trafik cezasý");
+
+        var result =
+            await fixture.Service.CreateAsync(
+                request,
+                financeUser);
+
+        Assert.True(
+            result.Succeeded);
+
+        var createdFine =
+            Assert.Single(
+                fixture.TrafficFineEntityRepository.Items);
+
+        Assert.Equal(
+            "finance-user-id",
+            createdFine.CreatedByUserId);
+
+        Assert.Equal(
+            TrafficFineStatus.New,
+            createdFine.Status);
+
+        Assert.Equal(
+            1,
+            fixture.UnitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
+    public async Task EditAsync_Creator_Succeeds()
+    {
+        var workflow =
+            CreateThreeStepWorkflow();
+
+        var trafficFine =
+            CreateTrafficFine(
+                TrafficFineStatus.New,
+                createdByUserId:
+                    "manager-user-id");
+
+        var fixture =
+            CreateFixture(
+                trafficFine,
+                workflow);
+
+        var managerUser =
+            CreateUser(
+                RoleNames.Manager);
+
+        var request =
+            new TrafficFineEditRequest(
+                trafficFine.Id,
+                1,
+                DateOnly.FromDateTime(
+                    DateTime.Now),
+                7_500m,
+                "Creator edit testi",
+                new byte[] { 1 });
+
+        var result =
+            await fixture.Service.EditAsync(
+                request,
+                managerUser);
+
+        Assert.True(
+            result.Succeeded);
+
+        Assert.Equal(
+            7_500m,
+            trafficFine.Amount);
+
+        Assert.Equal(
+            "Creator edit testi",
+            trafficFine.Description);
+
+        Assert.Equal(
+            1,
+            fixture.UnitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
+    public async Task EditAsync_NonCreator_ReturnsForbidden()
+    {
+        var workflow =
+            CreateThreeStepWorkflow();
+
+        var trafficFine =
+            CreateTrafficFine(
+                TrafficFineStatus.New);
+
+        var fixture =
+            CreateFixture(
+                trafficFine,
+                workflow);
+
+        var managerUser =
+            CreateUser(
+                RoleNames.Manager);
+
+        var request =
+            new TrafficFineEditRequest(
+                trafficFine.Id,
+                1,
+                DateOnly.FromDateTime(
+                    DateTime.Now),
+                7_500m,
+                "Yetkisiz edit testi",
+                new byte[] { 1 });
+
+        var result =
+            await fixture.Service.EditAsync(
+                request,
+                managerUser);
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            TrafficFineCommandError.Forbidden,
+            result.Error);
+
+        Assert.Equal(
+            "Yalnýzca kendi oluþturduðunuz trafik cezasýný düzenleyebilirsiniz.",
+            result.ErrorMessage);
+
+        Assert.Equal(
+            0,
+            fixture.UnitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
+    public async Task SubmitAsync_NonCreator_ReturnsForbidden()
+    {
+        var workflow =
+            CreateThreeStepWorkflow();
+
+        var trafficFine =
+            CreateTrafficFine(
+                TrafficFineStatus.New);
+
+        var fixture =
+            CreateFixture(
+                trafficFine,
+                workflow);
+
+        var managerUser =
+            CreateUser(
+                RoleNames.Manager);
+
+        var result =
+            await fixture.Service.SubmitAsync(
+                trafficFine.Id,
+                managerUser);
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            TrafficFineCommandError.Forbidden,
+            result.Error);
+
+        Assert.Equal(
+            "Yalnýzca kendi oluþturduðunuz trafik cezasýný onaya gönderebilirsiniz.",
+            result.ErrorMessage);
+
+        Assert.Equal(
+            TrafficFineStatus.New,
+            trafficFine.Status);
+
+        Assert.Empty(
+            fixture.HistoryRepository.Items);
+
+        Assert.Equal(
+            0,
+            fixture.UnitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
+    public async Task ApproveAsync_CreatorWithMatchingFinanceRole_ReturnsForbidden()
+    {
+        var workflow =
+            CreateThreeStepWorkflow();
+
+        var trafficFine =
+            CreateTrafficFine(
+                status:
+                    TrafficFineStatus.InApproval,
+                workflowId:
+                    workflow.Id,
+                currentStepId:
+                    30,
+                createdByUserId:
+                    "finance-user-id");
+
+        var fixture =
+            CreateFixture(
+                trafficFine,
+                workflow);
+
+        var financeUser =
+            CreateUser(
+                RoleNames.Finance);
+
+        var result =
+            await fixture.Service.ApproveAsync(
+                trafficFine.Id,
+                financeUser);
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            TrafficFineCommandError.Forbidden,
+            result.Error);
+
+        Assert.Equal(
+            "Kendi oluþturduðunuz kaydý onaylayamaz veya reddedemezsiniz.",
+            result.ErrorMessage);
+
+        Assert.Equal(
+            30,
+            trafficFine.CurrentApprovalStepId);
+
+        Assert.Empty(
+            fixture.HistoryRepository.Items);
+
+        Assert.Equal(
+            0,
+            fixture.UnitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
+    public async Task RejectAsync_CreatorWithMatchingFinanceRole_ReturnsForbidden()
+    {
+        var workflow =
+            CreateThreeStepWorkflow();
+
+        var trafficFine =
+            CreateTrafficFine(
+                status:
+                    TrafficFineStatus.InApproval,
+                workflowId:
+                    workflow.Id,
+                currentStepId:
+                    30,
+                createdByUserId:
+                    "finance-user-id");
+
+        var fixture =
+            CreateFixture(
+                trafficFine,
+                workflow);
+
+        var financeUser =
+            CreateUser(
+                RoleNames.Finance);
+
+        var result =
+            await fixture.Service.RejectAsync(
+                trafficFine.Id,
+                "Finance self reject testi.",
+                financeUser);
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            TrafficFineCommandError.Forbidden,
+            result.Error);
+
+        Assert.Equal(
+            "Kendi oluþturduðunuz kaydý onaylayamaz veya reddedemezsiniz.",
+            result.ErrorMessage);
+
+        Assert.Equal(
+            30,
+            trafficFine.CurrentApprovalStepId);
+
+        Assert.Empty(
+            fixture.HistoryRepository.Items);
+
+        Assert.Equal(
+            0,
+            fixture.UnitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
     public async Task CreateAsync_FutureFineDate_ReturnsValidationError()
     {
         var workflow =
@@ -692,20 +1040,36 @@ public sealed class TrafficFineServiceApprovalTests
         var vehicleRepository =
             new FakeGenericRepository<Vehicle>();
 
+        vehicleRepository.Items.Add(
+            new Vehicle
+            {
+                Id = 1,
+                PlateNumber = "41 TEST 001",
+                VehicleType =
+                    VehicleType.PassengerCar,
+                Brand = "Test",
+                Model = "Vehicle",
+                IsActive = true,
+                CreatedAt =
+                    DateTimeOffset.UtcNow
+            });
+
         var unitOfWork =
             new FakeUnitOfWork();
 
-        var service = new TrafficFineService(
-            trafficFineRepository,
-            workflowRepository,
-            trafficFineGenericRepository,
-            historyRepository,
-            vehicleRepository,
-            unitOfWork);
+        var service =
+            new TrafficFineService(
+                trafficFineRepository,
+                workflowRepository,
+                trafficFineGenericRepository,
+                historyRepository,
+                vehicleRepository,
+                unitOfWork);
 
         return new TestFixture(
             service,
             trafficFineRepository,
+            trafficFineGenericRepository,
             historyRepository,
             unitOfWork);
     }
@@ -713,7 +1077,9 @@ public sealed class TrafficFineServiceApprovalTests
     private static TrafficFine CreateTrafficFine(
         TrafficFineStatus status,
         int? workflowId = null,
-        int? currentStepId = null)
+        int? currentStepId = null,
+        string createdByUserId =
+            "operator-user-id")
     {
         return new TrafficFine
         {
@@ -728,8 +1094,10 @@ public sealed class TrafficFineServiceApprovalTests
             Status = status,
             ApprovalWorkflowId = workflowId,
             CurrentApprovalStepId = currentStepId,
-            CreatedByUserId = "operator-user-id",
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedByUserId =
+                createdByUserId,
+            CreatedAt =
+                DateTimeOffset.UtcNow
         };
     }
 
@@ -800,6 +1168,8 @@ public sealed class TrafficFineServiceApprovalTests
     private sealed record TestFixture(
         TrafficFineService Service,
         FakeTrafficFineRepository TrafficFineRepository,
+        FakeGenericRepository<TrafficFine>
+            TrafficFineEntityRepository,
         FakeGenericRepository<ApprovalHistory>
             HistoryRepository,
         FakeUnitOfWork UnitOfWork);

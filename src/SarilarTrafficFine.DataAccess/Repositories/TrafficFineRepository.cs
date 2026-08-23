@@ -114,8 +114,8 @@ public sealed class TrafficFineRepository : ITrafficFineRepository
     }
 
     public async Task<TrafficFineDetailsRecord?> GetDetailsAsync(
-        int id,
-        CancellationToken cancellationToken = default)
+    int id,
+    CancellationToken cancellationToken = default)
     {
         var query =
             from trafficFine in _context.TrafficFines.AsNoTracking()
@@ -142,6 +142,7 @@ public sealed class TrafficFineRepository : ITrafficFineRepository
                 trafficFine.Amount,
                 trafficFine.Description,
                 trafficFine.Status,
+                trafficFine.CreatedByUserId,
                 user.UserName
                     ?? user.Email
                     ?? trafficFine.CreatedByUserId,

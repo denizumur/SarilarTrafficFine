@@ -103,13 +103,19 @@ public sealed class TrafficFinesController : Controller
                 trafficFine.Status,
                 approval.CurrentStepName);
 
+        var currentUser =
+            User.ToCurrentUserContext();
+
         var isCreatedByCurrentUser =
-    !string.IsNullOrWhiteSpace(
-        User.Identity?.Name)
-    && string.Equals(
-        trafficFine.CreatedByUserName,
-        User.Identity.Name,
-        StringComparison.OrdinalIgnoreCase);
+            string.Equals(
+                trafficFine.CreatedByUserId,
+                currentUser.UserId,
+                StringComparison.Ordinal);
+
+        var canEditOrSubmit =
+            trafficFine.Status ==
+                TrafficFineStatus.New
+            && isCreatedByCurrentUser;
 
         var canApproveOrReject =
             trafficFine.Status ==
@@ -138,16 +144,10 @@ public sealed class TrafficFinesController : Controller
                 approval.CurrentStepName,
                 Convert.ToBase64String(
                     trafficFine.RowVersion),
-                trafficFine.Status ==
-                    TrafficFineStatus.New
-                && User.IsInRole(
-                    RoleNames.Operator))
+                canEditOrSubmit)
             {
                 CanSubmit =
-                    trafficFine.Status ==
-                        TrafficFineStatus.New
-                    && User.IsInRole(
-                        RoleNames.Operator),
+                    canEditOrSubmit,
 
                 CanApproveOrReject =
                     canApproveOrReject,
@@ -216,7 +216,6 @@ public sealed class TrafficFinesController : Controller
             $"trafik-cezasi-{id}.pdf");
     }
 
-    [Authorize(Roles = RoleNames.Operator)]
     [HttpGet]
     public async Task<IActionResult> Create(
         CancellationToken cancellationToken)
@@ -236,7 +235,6 @@ public sealed class TrafficFinesController : Controller
         return View(model);
     }
 
-    [Authorize(Roles = RoleNames.Operator)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
@@ -297,7 +295,6 @@ public sealed class TrafficFinesController : Controller
             });
     }
 
-    [Authorize(Roles = RoleNames.Operator)]
     [HttpGet]
     public async Task<IActionResult> Edit(
         int id,
@@ -311,6 +308,17 @@ public sealed class TrafficFinesController : Controller
         if (trafficFine is null)
         {
             return NotFound();
+        }
+
+        var currentUser =
+            User.ToCurrentUserContext();
+
+        if (!string.Equals(
+                trafficFine.CreatedByUserId,
+                currentUser.UserId,
+                StringComparison.Ordinal))
+        {
+            return Forbid();
         }
 
         if (trafficFine.Status !=
@@ -354,7 +362,6 @@ public sealed class TrafficFinesController : Controller
         return View(model);
     }
 
-    [Authorize(Roles = RoleNames.Operator)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
@@ -461,7 +468,6 @@ public sealed class TrafficFinesController : Controller
             new { id });
     }
 
-    [Authorize(Roles = RoleNames.Operator)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Submit(
